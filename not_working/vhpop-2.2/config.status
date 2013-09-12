@@ -451,7 +451,7 @@ s,@AUTOMAKE@,automake-1.6,;t t
 s,@AUTOHEADER@,autoheader,;t t
 s,@MAKEINFO@,makeinfo,;t t
 s,@AMTAR@,tar,;t t
-s,@install_sh@,/home/sparky/Documents/FALL 2013/Planning/classical/vhpop-2.2/install-sh,;t t
+s,@install_sh@,/home/sparky/Documents/FALL 2013/Planning/classical/not_working/vhpop-2.2/install-sh,;t t
 s,@STRIP@,,;t t
 s,@ac_ct_STRIP@,,;t t
 s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
@@ -476,8 +476,8 @@ s,@CFLAGS@,-g -O2,;t t
 s,@ac_ct_CC@,gcc,;t t
 s,@CCDEPMODE@,depmode=gcc3,;t t
 s,@LEX@,flex,;t t
-s,@LEXLIB@,,;t t
-s,@LEX_OUTPUT_ROOT@,,;t t
+s,@LEXLIB@,-lfl,;t t
+s,@LEX_OUTPUT_ROOT@,lex.yy,;t t
 s,@YACC@,bison -y,;t t
 s,@ALLOCA@,,;t t
 s,@CPP@,gcc -E,;t t
@@ -758,6 +758,7 @@ ${ac_dA}PACKAGE_STRING${ac_dB}PACKAGE_STRING${ac_dC}"VHPOP 2.2"${ac_dD}
 ${ac_dA}PACKAGE_BUGREPORT${ac_dB}PACKAGE_BUGREPORT${ac_dC}"lorens@cs.cmu.edu"${ac_dD}
 ${ac_dA}PACKAGE${ac_dB}PACKAGE${ac_dC}"vhpop"${ac_dD}
 ${ac_dA}VERSION${ac_dB}VERSION${ac_dC}"2.2"${ac_dD}
+${ac_dA}YYTEXT_POINTER${ac_dB}YYTEXT_POINTER${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_ALLOCA_H${ac_dB}HAVE_ALLOCA_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_ALLOCA${ac_dB}HAVE_ALLOCA${ac_dC}1${ac_dD}
 ${ac_dA}STDC_HEADERS${ac_dB}STDC_HEADERS${ac_dC}1${ac_dD}
@@ -805,6 +806,7 @@ ${ac_uA}PACKAGE_STRING${ac_uB}PACKAGE_STRING${ac_uC}"VHPOP 2.2"${ac_uD}
 ${ac_uA}PACKAGE_BUGREPORT${ac_uB}PACKAGE_BUGREPORT${ac_uC}"lorens@cs.cmu.edu"${ac_uD}
 ${ac_uA}PACKAGE${ac_uB}PACKAGE${ac_uC}"vhpop"${ac_uD}
 ${ac_uA}VERSION${ac_uB}VERSION${ac_uC}"2.2"${ac_uD}
+${ac_uA}YYTEXT_POINTER${ac_uB}YYTEXT_POINTER${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_ALLOCA_H${ac_uB}HAVE_ALLOCA_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_ALLOCA${ac_uB}HAVE_ALLOCA${ac_uC}1${ac_uD}
 ${ac_uA}STDC_HEADERS${ac_uB}STDC_HEADERS${ac_uC}1${ac_uD}
