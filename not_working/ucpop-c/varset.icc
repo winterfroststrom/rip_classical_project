@@ -1,0 +1,424 @@
+#include "varset.h"
+#include "parser.h"
+#include "utility.h"
+
+// inline functions
+
+// TODO:  
+// 1. make a cache,  caches all the existing variables in the
+//    CS,  s.t. a linear search can be prevented.
+// 2. 
+
+// Principles:  
+// 1.  Do not construct varset unless it\'s useful
+// 2. constant ncd set is not necessary:
+// ::  Construct a ncd set for each (:neq constant var)
+// ::  Then if it is ever the case that (constant var) or
+// ::  (var var2) and (var2 constant),  then it will automatically
+// ::  be the case that var appears in both the cd and ncd field
+// ::  of the varset bound to constant,  which exists
+
+// +1 because the symbol doesn\'t correspond exactly to length
+inline static int
+BStringSize(Sym s1, Sym s2)
+{return max(s1,s2)+1;}
+
+inline
+Varset::Varset(int size)
+: constant(0), cd(size), ncd(size), GC() {}
+
+inline
+Varset::Varset(const BitString &co, const BitString &vnc, Sym c)
+: constant(c), cd(co), ncd(vnc), GC() {}
+
+inline
+Varset::Varset(const Varset &v)
+: constant(v.constant), cd(v.cd), ncd(v.ncd), GC() {}
+
+
+// should automatically invoke subobject's destructors
+inline
+Varset::~Varset()
+{}
+
+// at least one of them must be variable
+// ** IMPORTANT: need to do this twice if s1 and s2 are variables! **
+// s1 is assumed constant, if any, among s1 & s2
+inline
+Varset::Varset(Sym s1, Sym s2, BindConstraint bc)
+: constant ((IsConst(s1)?s1:0)),
+  cd(BStringSize(s1,s2)),
+  ncd(BStringSize(s1,s2)),
+  GC()
+{
+  if (bc==EQ) {
+    cd+=s2;
+    if (IsVar(s1)) cd+=s1; // otherwise the constant is already assigned
+  } else {       
+    ncd+=s2;
+    if (IsVar(s1)) cd+=s1;
+  }
+}
+
+inline
+CS::CS(void)
+: List<Varset>() {}
+
+inline
+CS::CS(const List<Varset>& vs)
+: List<Varset> (vs) {}
+
+
+// rather than returning a list of bindings,
+// return a list of ready made varsets.
+// Adv: clean and eff
+// Disadv: outside can see the varsets
+inline
+List<Varset>*
+CS::Unify(const Term& t1, const Term& t2)
+{return Unify(*t1.rep, *t2.rep);}
+
+// test for equality
+
+inline
+List<Varset>*
+CS::Unify(const Term &t1,
+	  const Term &t2,
+	  ReplTable& table,
+	  Context param)
+{ return Unify(*t1.rep, *t2.rep, table, param);}
+
+
+
+
+inline bool 
+Varset::operator==(const Varset& vs) const
+{return this==&vs;}
+
+
+inline bool 
+Varset::operator!=(const Varset& vs) const
+{return this!=&vs;}
+
+
+// general purpose swap for swapping arguments
+inline static void 
+swap(int& s1, int& s2)
+{
+  int tmp;
+  tmp=s1;
+  s1=s2;
+  s2=tmp;
+}
+
+// GetVarset will always return a varset if it is given a variable.
+// It will only return NULL if the given symbol is a constant and
+// it is not yet in the CS set.
+
+inline Varset*
+CS::GetVarset(Sym s) const
+{
+  ASSERT(s!=0);
+  ITERATE(vs, *this, next, Varset);
+  if (IsConst(s)) { // search constant field
+    DOLIST(vs, next)
+       if (vs->constant==s) return vs;
+  } else {          // search cd field
+    DOLIST(vs, next)
+       if (vs->cd==s) return vs; 
+  }
+  return NULL;
+}
+
+
+inline Sym
+CS::GetConstant(Sym s) const
+{
+  return GetVarset(s)->constant;
+}
+  
+
+// // 0 is not constant
+// inline Ustatus
+// CS::Codesignate(Sym s1,Sym s2) const
+// {
+//   ASSERT(s1!=0 && s2!=0);
+//   if (IsConst(s1) && IsConst(s2) && s1 != s2) return CannotU;
+//   Varset* v1=GetVarset(s1);
+//   if (IsVar(s2) && v1 && (v1->ncd==s2)) return CannotU;
+// 
+//   // this seems unnecessary,  but for now put it here s.t. no bug
+//   Varset* v2=GetVarset(s2);
+//   if (IsVar(s1) && v2 && (v2->ncd==s1)) return CannotU;
+// 
+//   if (v1 && v2 && v1!=v2) {
+//     if (v1->constant && v2->constant &&
+// 	(v1->constant!=v2->constant)) return CannotU;
+//     else return MayU;
+//   } else return IsU;
+// }
+// 0 is not constant
+inline Ustatus
+CS::Codesignate(Sym s1,Sym s2) const
+{
+  ASSERT(s1!=0 && s2!=0);
+  Varset *v1, *v2;
+  if (s1==s2) return IsU;
+  else if (IsConst(s1) && IsConst(s2)) return CannotU;
+  // s1 != s2
+  
+  if (v1=GetVarset(s1)) {
+    if (IsVar(s2) && (v1->ncd==s2)) return CannotU;
+
+    else if (v2=GetVarset(s2)) {
+      if (v1==v2) return IsU;
+      else if ((IsVar(s1) && (v2->ncd==s1)) ||
+	       (v1->constant && v2->constant &&
+	       (v1->constant!=v2->constant))) return CannotU;
+    }
+  }
+  return MayU;
+}
+  
+//   // 0 is not constant
+// inline Ustatus
+// CS::Codesignate(Sym s1,Sym s2) const
+// {
+//   ASSERT(s1!=0 && s2!=0);
+//   Varset* v1=GetVarset(s1);
+//   Varset* v2=GetVarset(s2);
+//   
+//   if (v1==v2) {
+//     if (IsConst(s2)) {
+//       if (vs->constant==0) return MayU;
+//       else return (vs->constant==s2) ? IsU : CannotU;
+//     } else {
+//       if (v1->cd==s2) return IsU;
+//       else if (vs->ncd==s2) return CannotU;
+//       else {
+// 
+// 	if (v2 && v2->constant && (v2->constant != v1->constant)) 
+// 	return MayU;
+//     }
+//   } else return (IsConst(s2) && IsConst(s1) && s1 != s2) ? CannotU : MayU;
+// } 
+
+
+// return a boolean (thru the contraint_?? subroutines) to
+// indicate success or failure of adding binding.
+// called by a new CS already,  so can be destructive
+// 
+
+inline bool
+CS::AddBind(const Term &t)
+{return AddBind(*t.rep);}
+
+
+inline bool
+CS::AddBind(const TermRep &t)
+{return AddBind(t.s[0],t.s[1],t.p);}
+
+inline bool
+CS::AddBind(Sym s1, Sym s2, int constraint) 
+{
+  // swap the args if necessary, s.t. the first arg to CE and CNE
+  // are constants,  if there is one among s1 & s2
+  return (IsConst(s2)) ?
+  ((constraint==EQ) ? ConstrainEq(s2,s1) : ConstrainNeq(s2,s1)):
+  ((constraint==EQ) ? ConstrainEq(s1,s2) : ConstrainNeq(s1,s2));
+}
+
+// have to assume, by induction,  the sizes of cd and ncd are the same
+inline Varset
+Varset::operator|(const Varset &v2) const
+{
+  Varset vs((cd|v2.cd),
+	    (ncd|v2.ncd),
+	    (constant)?constant:(v2.constant));
+  return vs;
+}
+
+
+// assume restricter is already seen somewhere before
+inline Varset*
+Varset::RestrictVarset(Sym restricter) const
+{
+  Varset* v;
+  if (cd!=restricter) {
+    v=new Varset(BStringSize(restricter, cd.GetSize()));
+    *v|= *this;
+    v->ncd+=restricter;
+    return v;
+  } else return NULL;
+}
+
+
+// assume s1 is a constant,  if there is one
+// BUG (solved): 
+// will cause duplicates: inferencible relations are still appended
+inline bool
+CS::ConstrainNeq(Sym s1, Sym s2)
+{
+  // s1==constant and s2==constant
+  if (IsConst(s2)) return TRUE;
+
+  Varset *v1, *v2;
+  Varset *r1=GetVarset(s1), *r2=GetVarset(s2);
+
+  v1=(r1)?((r1->ncd==s2)?r1:r1->RestrictVarset(s2)):new Varset(s1, s2, NEQ);
+// s1 new constant,  bind it to not s2 return
+  if (v1) {
+    if (IsConst(s1)) {
+      if (v1!=r1) Push(v1); // avoid duplicates
+      return TRUE; 
+    }
+    v2=(r2)?((r2->ncd==s1)?r2:r2->RestrictVarset(s1)):new Varset(s2, s1, NEQ);
+    if (v2) {
+      if (v1!=r1) Push(v1); // avoid duplicates
+      if (v2!=r2) Push(v2);
+      return TRUE;
+    } else {
+      delete v1;
+      return FALSE;
+    } 
+  } else return FALSE;
+}
+
+
+inline Varset*		 
+Varset::CombineVarsets(const Varset &v2) const
+{
+  // this != &v2 is checked at ConstrainEq
+
+  if (!(constant && v2.constant)) {
+    Varset* v=new Varset(*this|v2);
+    if (IsEmpty(v->cd & v->ncd))
+       return v;
+    else {
+      delete v;
+      return NULL;
+    }
+  } else return NULL;
+}
+
+
+inline Varset* 
+Varset::operator+(Varset &v) const
+{return CombineVarsets(v);}
+
+inline void 
+Varset::operator|=(const Varset& v)
+{
+  cd|=v.cd;
+  ncd|=v.ncd;
+  ASSERT(!constant); // doesn\'t make any sense if this is false
+  constant=v.constant;
+}
+
+
+inline Varset*
+Varset::operator+(Sym symbol) const
+{
+  Varset* v;
+  if (IsConst(symbol)) {
+    if (constant!=0) return NULL; // s1 is new and is impossible to bind constant
+    else {
+      v=new Varset(*this);
+      v->constant=symbol;
+      return v;
+    } 
+  } else if (ncd!=symbol) {
+    v=new Varset(BStringSize(symbol, cd.GetSize()));
+    *v|= *this;
+    v->cd+=symbol;
+    return v;
+  } else return NULL;
+}
+
+
+
+// separated from ConstrainEq inorder for other function to use this
+// BUG:  When s2 is in v1 e.g.,  then s2 WILL be added
+inline Varset*
+CS::CreateEqVarset(Varset* v1, Sym s1, Varset* v2, Sym s2) const
+{
+  Varset* vs=NULL;
+  // assume v1 != v2
+  if (v1 && v2) {
+    vs=(*v1)+(*v2);
+  } else if (v1 || v2) {  // s1 is NEW in *v2+s1
+    vs=(v2)?(*v2+s1):(*v1+s2);
+  } else {
+    vs=new Varset(s1,s2); // both are new
+  }
+  return vs;
+}
+
+
+inline bool
+CS::ConstrainEq(Sym s1, Sym s2)
+{ 
+  DBG(_CONSTR_, cerr<< "constraining eq: <" << s1 << "," << s2 <<">\n");
+  ASSERT(s1!=s2); // why would this happen?
+  // check if IsConst(s1) & ...(s2)
+  if (IsConst(s2)) return s1==s2;
+
+  Varset *v2=GetVarset(s1), *v1=GetVarset(s2), *vs;
+
+  if (v1 && v1==v2) return TRUE; // neq and not both NULL
+  else vs=CreateEqVarset(v1, s1, v2, s2);
+
+  if (vs) Push(vs);
+  return (bool)vs;
+}
+
+inline Ustatus
+CS::Affects(const Term &t1, const Term &t2, Context base) const
+{return Affects(*t1.rep, *t2.rep, base);}
+  
+// 
+// inline Ustatus
+// CS::Affects(const TermRep &t1, const TermRep &t2) const
+// {
+//   int Ucount=0; // count of how many more bindings needed
+//   // allow unification with :not by PredOrNeg
+//   DBG(_VAR_, cerr << "See if " << t1 << " affects " << t2 << endl);
+//   if (t1.size!=t2.size || (t1.p!=-t2.p) || (-t1.p!=t2.p)) return CannotU;
+// 
+//   DBG(_VAR_, cerr << "VAR: pred affects." << endl);
+//   for (int i=0; i<t1.size; i++) {
+//     switch (Codesignate(t1.s[i],t2.s[i])) {
+//     case CannotU: return CannotU;
+//     case MayU: Ucount++; continue;
+//     case IsU: continue;
+//     default: break;
+//     }
+//   }
+//   DBG(_VAR_, cerr << "They seems to affect each other!!!!" << endl);
+//   return (Ucount>0)?MayU:IsU;
+// }
+
+
+
+inline Ustatus
+CS::Affects(const TermRep &t1, const TermRep &t2, Context base) const
+{
+  int Ucount=0; // count of how many more bindings needed
+  // allow unification with :not by PredOrNeg
+  DBG(_VAR_, cerr << "See if " << t1 << " affects " << t2 << endl);
+  if (t1.size!=t2.size || (t1.p!=-t2.p) || (-t1.p!=t2.p)) return CannotU;
+
+  DBG(_VAR_, cerr << "VAR: pred affects." << endl);
+  for (int i=0; i<t1.size; i++) {
+    if (base && (t1.s[i] > base)) continue; // all universal variables binds
+    switch (Codesignate(t1.s[i],t2.s[i])) {
+    case CannotU: return CannotU;
+    case MayU: Ucount++; continue;
+    case IsU: continue;
+    default: break;
+    }
+  }
+  DBG(_VAR_, cerr << "They seems to affect each other!!!!" << endl);
+  return (Ucount>0)?MayU:IsU;
+}
+

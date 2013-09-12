@@ -1,0 +1,17 @@
+// inline link functions
+
+inline StepId
+Link::GetProducer() const
+{return producer;}
+
+inline StepId
+Link::GetConsumer() const
+{return consumer;}
+
+
+inline
+Link::Link(StepId id1, const Term& term, StepId id2) 
+: producer(id1), consumer(id2), Term(term), GC() {}
+
+
+

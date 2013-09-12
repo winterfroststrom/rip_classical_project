@@ -1,0 +1,346 @@
+# Another really simple makefile
+
+SHELL = /bin/sh
+
+PROJECTROOT=.
+SECONDARYROOT = /bigtmp/Trix/projects
+CC = g++ 
+CFLAGS = -ggdb -Wall
+DEFINES = -DOUTLINE -DDEBUG
+EXTRAFLAGS = $(DEFINES)
+
+DBMDIR = dbmalloc
+DBMINCLUDE = $(PROJECTROOT)/$(DBMDIR)
+DBMLIBDIR = $(PROJECTROOT)/$(DBMDIR)
+INCLUDE = -I$(PROJECTROOT) 
+#-I$(DBMINCLUDE) 
+LIB = 
+#-L$(PROJECTROOT)/$(DBMDIR)
+DBMLIB = -ldbmalloc
+DBM = -L$(DBMLIBDIR) $(DBMLIB)
+ILD = ild
+
+
+OBJECTS = ldriver.o
+
+GOBJ=utility.o bitstring.o
+
+LISTOBJ=ldriver.o $(GOBJ) 
+LSDR=ldriver
+
+BITOBJ=$(GOBJ) bdriver.o
+BITDR=bdriver
+
+VOBJ=$(GOBJ) varset.o vdriver.o bitstring.o objects.o 
+VDR=vdriver
+
+TOBJ=$(GOBJ) tdriver.o table.o
+TDR=tdriver
+
+TMOBJ=$(GOBJ) tldriver.o
+TMDR=tldriver
+
+SOBJ=$(GOBJ) str.o sdriver.o
+SSRC=str.h str.cc str.icc
+
+SQOBJ=$(GOBJ) sqdriver.o bitstring.o
+
+AOBJ=$(GOBJ) array.o adriver.o 
+ASRC=adriver.cc array.h array.icc array.cc
+
+.SUFFIXES: .o .cc .h .icc
+
+.cc.o:
+	$(COMPILE) -c $<
+
+COMPILE=$(CC) $(CFLAGS) $(INCLUDE) $(DEBUG) $(EXTRAFLAGS) $(LIB) 
+
+all:
+	(cd $(SECONDARYROOT) ; make ucpop)
+
+adriver: $(AOBJ)
+	$(COMPILE) $(AOBJ) -o $@
+
+sdriver: $(SOBJ)
+	$(COMPILE) $(SOBJ) -o $@
+
+sqdriver: $(SQOBJ)
+	$(COMPILE) $(SQOBJ) -o $@
+
+tldriver:  tldriver.o utility.o 
+
+tldriver:
+	makedepend >& /dev/null
+	$(COMPILE) $(TMOBJ) -o $@
+
+ldriver: $(LISTOBJ)
+	$(COMPILE)  $(LISTOBJ)  -lg++ -o $@
+#	$(COMPILE) -Idbmalloc $(LISTOBJ) -Ldbmalloc -ldbmalloc -lg++-2-4-2 -o $@
+
+ldriver2:  ldriver2.o
+	$(COMPILE) $(DBM) utility.o ldriver2.o bitstring.o -o $@	
+
+ldriver3:  ldriver3.o
+	$(COMPILE) $(DBM) utility.o ldriver3.o bitstring.o -o $@	
+
+odriver: odriver.o order.o
+	$(COMPILE) odriver.o order.o bitstring.o -o $@	
+
+bdriver: $(BITOBJ)
+	$(COMPILE) $(BITOBJ) -o $@
+
+tdriver: $(TOBJ)
+	$(COMPILE) $(TOBJ) -o $@
+
+vdriver: $(VOBJ)
+	$(COMPILE) $(VOBJ) -o $@
+
+lex.yy.o: ucpop.l
+
+lex.yy.o:
+	flex ucpop.l
+	mv lex.yy.c lex.yy.cc
+	$(COMPILE) -c lex.yy.cc
+
+y.tab.o:
+	flex ucpop.l
+	mv lex.yy.c lex.yy.cc
+	yacc ucpop.y
+	mv y.tab.c y.tab.cc
+	$(COMPILE) -c y.tab.cc
+
+y.tab.o: ucpop.y ucpop.l
+
+POBJ=$(GOBJ) objects.o y.tab.o symtab.o str.o logic.o pdriver.o parser.o template.o step.o openc.o effect.o planner.o plan.o order.o varset.o unsafe.o link.o
+
+parser: $(POBJ) 
+
+PLOBJ=$(GOBJ) main.o objects.o y.tab.o symtab.o str.o logic.o parser.o template.o step.o openc.o effect.o planner.o plan.o order.o varset.o unsafe.o link.o array.o timer.o search.o
+
+timer: $(GOBJ) timer.o timertest.o
+	$(COMPILE) -o timer timer.o timertest.o 
+
+snlp: $(PLOBJ)
+
+snlp: 
+	$(COMPILE) $(PLOBJ) -ly -o $@ 
+
+relink:
+	(cd /bigtmp/Trix/projects; lndir ${HOME}/projects)
+
+ucpop: $(PLOBJ) 
+
+ucpop:
+	rm -f /bigtmp/Trix/bin/$@
+	$(COMPILE) $(PLOBJ) -lm -ly -lg++ -o /bigtmp/Trix/bin/$@
+
+log: all
+	makelog
+
+dbm: $(PLOBJ)
+	rm -f /bigtmp/Trix/bin/$@
+	$(COMPILE) -Idbmalloc $(PLOBJ) -Ldbmalloc -ldbmalloc -ly -lg++ -o /bigtmp/Trix/bin/$@
+
+
+clean:
+	(cd /bigtmp/Trix/projects; rm -f *~ *.o )
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+array.o: array.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+array.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+array.o: /usr/include/stdlib.h array.icc
+bdriver.o: bitstring.h
+bitstring.o: bitstring.h utility.h /usr/include/stdarg.h
+bitstring.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+bitstring.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+bitstring.o: bitstring.icc
+effect.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+effect.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+effect.o: /usr/include/stdlib.h objects.h str.h gc.h openc.h effect.h list.h
+effect.o: list.cc logic.h slist.h /usr/include/stddef.h slist.cc effect.icc
+lex.yy.o: /usr/include/stdio.h /usr/include/ansi_compat.h
+lex.yy.o: /usr/include/ctype.h
+link.o: link.h objects.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+link.o: utility.h /usr/include/stdio.h /usr/include/string.h
+link.o: /usr/include/ctype.h /usr/include/stdlib.h str.h gc.h list.h list.cc
+link.o: link.icc
+logic.o: logic.h objects.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+logic.o: utility.h /usr/include/stdio.h /usr/include/string.h
+logic.o: /usr/include/ctype.h /usr/include/stdlib.h str.h gc.h slist.h
+logic.o: /usr/include/stddef.h slist.cc list.h list.cc parser.h symtab.h
+logic.o: array.h logic.icc
+main.o: gc.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+main.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+main.o: /usr/include/stdlib.h objects.h str.h openc.h unsafe.h link.h
+main.o: parser.h symtab.h array.h list.h list.cc logic.h slist.h
+main.o: /usr/include/stddef.h slist.cc template.h planner.h searchqueue.h
+main.o: searchqueue.cc searchqueue.icc order.h bitstring.h step.h effect.h
+main.o: plan.h varset.h timer.h /usr/include/sys/times.h /usr/include/math.h
+objects.o: objects.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+objects.o: utility.h /usr/include/stdio.h /usr/include/string.h
+objects.o: /usr/include/ctype.h /usr/include/stdlib.h str.h gc.h openc.h
+objects.o: parser.h symtab.h array.h list.h list.cc logic.h slist.h
+objects.o: /usr/include/stddef.h slist.cc objects.icc
+openc.o: openc.h gc.h utility.h /usr/include/stdarg.h
+openc.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+openc.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+openc.o: objects.h str.h logic.h slist.h /usr/include/stddef.h slist.cc
+openc.o: list.h list.cc openc.icc
+order.o: bitstring.h plan.h utility.h /usr/include/stdarg.h
+order.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+order.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+order.o: gc.h objects.h str.h unsafe.h link.h openc.h order.h list.h list.cc
+order.o: step.h effect.h logic.h slist.h /usr/include/stddef.h slist.cc
+order.o: varset.h order.icc
+parser.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+parser.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+parser.o: /usr/include/stdlib.h openc.h gc.h objects.h str.h parser.h
+parser.o: symtab.h array.h list.h list.cc logic.h slist.h
+parser.o: /usr/include/stddef.h slist.cc template.h plan.h unsafe.h link.h
+parser.o: order.h bitstring.h step.h effect.h varset.h planner.h
+plan.o: bitstring.h openc.h gc.h utility.h /usr/include/stdarg.h
+plan.o: /usr/include/ansi_compat.h /usr/include/stdio.h /usr/include/string.h
+plan.o: /usr/include/ctype.h /usr/include/stdlib.h objects.h str.h effect.h
+plan.o: list.h list.cc logic.h slist.h /usr/include/stddef.h slist.cc order.h
+plan.o: link.h unsafe.h plan.h step.h varset.h template.h symtab.h array.h
+plan.o: plan.icc parser.h
+planner.o: timer.h /usr/include/sys/times.h /usr/include/ansi_compat.h plan.h
+planner.o: utility.h /usr/include/stdarg.h /usr/include/stdio.h
+planner.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+planner.o: gc.h objects.h str.h unsafe.h link.h openc.h order.h bitstring.h
+planner.o: list.h list.cc step.h effect.h logic.h slist.h
+planner.o: /usr/include/stddef.h slist.cc varset.h parser.h symtab.h array.h
+planner.o: planner.h planner.icc template.h
+search.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+search.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+search.o: /usr/include/stdlib.h plan.h gc.h objects.h str.h unsafe.h link.h
+search.o: openc.h order.h bitstring.h list.h list.cc step.h effect.h logic.h
+search.o: slist.h /usr/include/stddef.h slist.cc varset.h searchqueue.h
+search.o: searchqueue.cc searchqueue.icc
+searchqueue.o: searchqueue.icc /usr/include/stdlib.h
+searchqueue.o: /usr/include/ansi_compat.h
+step.o: openc.h gc.h utility.h /usr/include/stdarg.h
+step.o: /usr/include/ansi_compat.h /usr/include/stdio.h /usr/include/string.h
+step.o: /usr/include/ctype.h /usr/include/stdlib.h objects.h str.h effect.h
+step.o: list.h list.cc logic.h slist.h /usr/include/stddef.h slist.cc step.h
+step.o: template.h symtab.h array.h parser.h varset.h bitstring.h step.icc
+str.o: str.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+str.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+str.o: /usr/include/stdlib.h str.icc
+symtab.o: symtab.h str.h utility.h /usr/include/stdarg.h
+symtab.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+symtab.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+symtab.o: objects.h gc.h array.h symtab.icc
+table.o: table.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+table.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+table.o: /usr/include/stdlib.h objects.h str.h gc.h table.icc
+template.o: template.h gc.h utility.h /usr/include/stdarg.h
+template.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+template.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+template.o: symtab.h str.h objects.h array.h logic.h slist.h
+template.o: /usr/include/stddef.h slist.cc list.h list.cc template.icc
+template.o: parser.h
+timer.o: timer.h /usr/include/sys/times.h /usr/include/ansi_compat.h
+timer.o: timer.icc /usr/include/unistd.h
+timertest.o: timer.h /usr/include/sys/times.h /usr/include/ansi_compat.h
+unsafe.o: openc.h gc.h utility.h /usr/include/stdarg.h
+unsafe.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+unsafe.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+unsafe.o: objects.h str.h effect.h list.h list.cc logic.h slist.h
+unsafe.o: /usr/include/stddef.h slist.cc unsafe.h link.h unsafe.icc
+utility.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+utility.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+utility.o: /usr/include/stdlib.h bitstring.h
+varset.o: varset.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+varset.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+varset.o: /usr/include/stdlib.h objects.h str.h gc.h bitstring.h list.h
+varset.o: list.cc parser.h symtab.h array.h logic.h slist.h
+varset.o: /usr/include/stddef.h slist.cc varset.icc
+y.tab.o: list.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+y.tab.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+y.tab.o: /usr/include/stdlib.h list.cc slist.h /usr/include/stddef.h slist.cc
+y.tab.o: objects.h str.h gc.h symtab.h array.h logic.h parser.h planner.h
+y.tab.o: lex.yy.cc
+array.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+array.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+array.o: /usr/include/stdlib.h
+effect.o: list.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+effect.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+effect.o: /usr/include/stdlib.h list.cc logic.h objects.h str.h gc.h slist.h
+effect.o: /usr/include/stddef.h slist.cc
+gc.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+gc.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+gc.o: /usr/include/stdlib.h
+link.o: objects.h /usr/include/stdarg.h /usr/include/ansi_compat.h utility.h
+link.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+link.o: /usr/include/stdlib.h str.h gc.h
+list.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+list.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+list.o: /usr/include/stdlib.h list.cc
+logic.o: objects.h /usr/include/stdarg.h /usr/include/ansi_compat.h utility.h
+logic.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+logic.o: /usr/include/stdlib.h str.h gc.h slist.h /usr/include/stddef.h
+logic.o: slist.cc list.h list.cc
+objects.o: /usr/include/stdarg.h /usr/include/ansi_compat.h utility.h
+objects.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+objects.o: /usr/include/stdlib.h str.h gc.h
+openc.o: gc.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+openc.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+openc.o: /usr/include/stdlib.h objects.h str.h
+order.o: bitstring.h utility.h /usr/include/stdarg.h
+order.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+order.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+order.o: objects.h str.h gc.h list.h list.cc
+parser.o: symtab.h str.h utility.h /usr/include/stdarg.h
+parser.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+parser.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+parser.o: objects.h gc.h array.h list.h list.cc logic.h slist.h
+parser.o: /usr/include/stddef.h slist.cc
+plan.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+plan.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+plan.o: /usr/include/stdlib.h gc.h objects.h str.h unsafe.h link.h openc.h
+plan.o: order.h bitstring.h list.h list.cc step.h effect.h logic.h slist.h
+plan.o: /usr/include/stddef.h slist.cc varset.h
+planner.o: str.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+planner.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+planner.o: /usr/include/stdlib.h gc.h list.h list.cc
+planparts.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+planparts.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+planparts.o: /usr/include/stdlib.h objects.h str.h gc.h varset.h bitstring.h
+planparts.o: list.h list.cc order.h table.h template.h symtab.h array.h
+planparts.o: logic.h slist.h /usr/include/stddef.h slist.cc
+searchqueue.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+searchqueue.o: /usr/include/stdio.h /usr/include/string.h
+searchqueue.o: /usr/include/ctype.h /usr/include/stdlib.h list.h list.cc
+searchqueue.o: searchqueue.cc searchqueue.icc
+slist.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+slist.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+slist.o: /usr/include/stdlib.h /usr/include/stddef.h slist.cc
+step.o: objects.h /usr/include/stdarg.h /usr/include/ansi_compat.h utility.h
+step.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+step.o: /usr/include/stdlib.h str.h gc.h openc.h effect.h list.h list.cc
+step.o: logic.h slist.h /usr/include/stddef.h slist.cc
+str.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+str.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+str.o: /usr/include/stdlib.h
+symtab.o: str.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+symtab.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+symtab.o: /usr/include/stdlib.h objects.h gc.h array.h
+table.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+table.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+table.o: /usr/include/stdlib.h objects.h str.h gc.h
+template.o: gc.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+template.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+template.o: /usr/include/stdlib.h symtab.h str.h objects.h array.h logic.h
+template.o: slist.h /usr/include/stddef.h slist.cc list.h list.cc
+timer.o: /usr/include/sys/times.h /usr/include/ansi_compat.h
+unsafe.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+unsafe.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+unsafe.o: /usr/include/stdlib.h objects.h str.h gc.h link.h
+utility.o: /usr/include/stdarg.h /usr/include/ansi_compat.h
+utility.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+utility.o: /usr/include/stdlib.h
+varset.o: utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+varset.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+varset.o: /usr/include/stdlib.h objects.h str.h gc.h bitstring.h list.h
+varset.o: list.cc

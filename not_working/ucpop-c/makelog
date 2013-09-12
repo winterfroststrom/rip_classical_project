@@ -1,0 +1,5 @@
+#!/bin/csh
+
+cd /bigtmp
+( /bigtmp/Trix/bin/ucpop r-test2 $HOME/projects/robot.u -d) |& fold -w 100   |& split -10000 -
+

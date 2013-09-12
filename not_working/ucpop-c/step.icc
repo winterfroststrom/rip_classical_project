@@ -1,0 +1,43 @@
+// inline funcs
+#include "openc.h"
+#include "effect.h"
+#include "step.h"
+#include "template.h"
+#include "parser.h"
+#include "varset.h"
+
+
+inline StepId
+Step::GetId() const
+{return id;}
+
+inline const List<Effect>&
+Step::GetEffects() const
+{return effects;}
+
+inline const List<Openc>&
+Step::GetOpencs() const
+{return opencs;}
+
+inline
+Step::Step(const TemplateEntry& entry, Context context, StepId idNum)
+: id(idNum), 
+  term(entry.GetTerm(), context), 
+  effects(InstantiateEffect(entry.GetEffects(), id, context)), 
+  opencs(InstantiateOpenc(entry.GetPreconds(), id, context)),
+  GC()
+{}
+
+
+inline
+Step::Step(const List<Openc>& ocs, StepId idNum)
+: term(), id(idNum), effects(), opencs(ocs), GC() {}
+
+inline
+Step::Step(const List<Effect>& efs, StepId idNum)
+: term(), id(idNum), effects(efs), opencs(), GC() {}
+
+inline
+Step::Step(StepId idNum)
+: term(), id(idNum), effects(), opencs(), GC() {}
+

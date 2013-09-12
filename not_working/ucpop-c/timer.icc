@@ -1,0 +1,47 @@
+#include "timer.h"
+#include <unistd.h>
+
+inline void
+Timer::StartRecording()
+{
+  if ((startRTime=times(&startTime)) == -1) cerr << "Times Error";
+}
+
+inline void
+Timer::EndRecording()
+{
+  if ((endRTime=times(&endTime)) == -1) cerr << "Times Error";
+}
+
+
+inline void
+Timer::Reset()
+{
+  // nothing really has to be done I guess
+}
+
+
+inline float
+Timer::GetElapsed()
+{
+  return (endRTime - startRTime) / (double) clktck;
+}
+
+inline float
+Timer::GetCPUTime()
+{
+  return
+     ((endTime.tms_utime - startTime.tms_utime) +
+      (endTime.tms_stime - startTime.tms_stime)) /
+      (double) clktck;
+}
+     
+
+
+inline void
+Timer::PrintStatistics(ostream& os)
+{
+  os.precision(precision);
+  os << "Elapsed Time: " <<  GetElapsed() << endl;
+  os << "CPU Time    : " <<  GetCPUTime() << endl;
+}

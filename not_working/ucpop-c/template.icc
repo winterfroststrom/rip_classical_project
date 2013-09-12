@@ -1,0 +1,36 @@
+#include "template.h"
+#include "parser.h"
+
+
+inline bool
+IsVariable(char *name)
+{return name[0]=='?';}
+
+// add arguments in terms
+
+inline void 
+DomainTemplate::SaveSymbolTable(UCPOPSymTab& symtab)
+{
+  symbolTable = &symtab;
+}
+
+inline const Term& 
+TemplateEntry::GetTerm() const
+{ return stepname; }
+
+
+inline Context
+TemplateEntry::GetContext() const
+{ return context; }
+
+
+inline const List<Node>& 
+TemplateEntry::GetEffects() const
+{ return effects; }
+
+
+inline const List<Node>& 
+TemplateEntry::GetPreconds() const
+{ return preconds; }
+
+

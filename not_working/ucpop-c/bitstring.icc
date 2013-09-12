@@ -1,0 +1,206 @@
+#include "utility.h"
+
+inline int
+BitString::GetSize() const
+{return size;}
+
+
+inline void 
+BitString::operator+=( int pos )
+{
+  ASSERT(pos>=0 && pos<size);
+  
+  int index=getIndex( pos );
+  int offset=getOffset( pos );
+
+  *(bs+index) |= (ON << offset);
+}
+
+
+inline void 
+BitString::operator-=( int pos )
+{
+  ASSERT(pos>=0 && pos<size);
+  
+  int index = getIndex(pos);
+  int offset = getOffset(pos);
+
+  *(bs+index) &= (~(ON << offset));
+}
+
+
+inline bool
+BitString::operator==( int pos ) const
+{  
+  ASSERT(pos>=0);
+  if (pos>=size) return FALSE;
+  return (*(bs + getIndex( pos )) & (ON << getOffset( pos )));
+}
+
+
+inline bool
+BitString::operator!=( int pos ) const
+{
+  return !(*this == pos);  
+}
+
+
+inline int 
+BitString::In(int pos) const
+{
+  if (pos>size) return -1;
+  else return *this==pos;
+}
+
+
+inline bool
+BitString::operator==(const BitString &b) const
+{
+  if (b.size != size) return FALSE;
+  for (int i=0; i<num_u_int; i++)
+     if (*(bs+i) != *(b.bs+i)) return FALSE;
+  return TRUE;
+}
+
+
+inline BitString
+BitString::operator|(const BitString& b) const
+{
+  BitString result((b.size>size) ? b : (*this));
+  BitStr tmp=result.bs;
+  for (int i=0, term=min(b.num_u_int,num_u_int); i<term; i++)
+     *(tmp+i)= *(bs+i) | *(b.bs+i);
+  return result;
+}
+
+
+inline BitString
+BitString::operator&(const BitString& b) const
+{
+  BitString result(max(b.size,size),OFF);
+  BitStr tmp=result.bs;
+  for (int i=0, term=min(b.num_u_int,num_u_int); i<term; i++)
+     *(tmp+i)= *(bs+i) & *(b.bs+i);
+  return result;		 // all the rest are 0\'s
+}
+
+
+inline BitString
+BitString::operator^(const BitString& b) const
+{
+  BitString result((b.size>size) ? b : (*this));
+  result=(b.size>size) ? b : (*this);
+  BitStr tmp=result.bs;
+  for (int i=0, term=min(b.num_u_int,num_u_int); i<term; i++)
+     *(tmp+i)= *(bs+i) ^ *(b.bs+i);
+  return result;
+}
+
+
+inline void
+BitString::operator|=( const BitString& b )
+{
+  for (int i=0; i<num_u_int; i++)
+     *(bs+i) = *(bs+i) | *(b.bs+i);
+}
+
+
+inline void
+BitString::operator&=( const BitString& b )
+{
+  for ( int i = 0; i < num_u_int; i++ )
+     *(bs + i) = *(bs + i) & *(b.bs + i);
+}
+
+inline void
+BitString::operator^=( const BitString& b )
+{
+  for ( int i = 0; i < num_u_int; i++ )
+     *(bs+i) = *(bs + i) ^ *(b.bs+i);
+}
+
+
+inline bool
+BitString::Empty() const
+{
+  for (int i=0; i<num_u_int; i++ )
+     if (*(bs+i)) return FALSE;
+  return TRUE;
+}
+
+inline BitStr
+BitString::Allocate(int needed)
+{
+  static int poolCount=0;
+  static int base=0;
+  static BitStr pool=new BitStrType[BitString::poolSize];
+  static BitStr trail;
+  static BitStr head;
+  
+  base=poolCount;
+  if ((poolCount += needed) < BitString::poolSize) {
+    return pool + base;
+  } else if (head=BitString::freeList[needed]) {
+    trail=head;
+    BitString::freeList[needed]=(BitStr)*head; // cannot cause seg fault
+    return trail;
+  } else {
+    pool=new BitStrType[BitString::poolSize];
+    poolCount=needed;
+    return pool;
+  }
+}
+
+
+inline void
+BitString::Deallocate(BitStr bs, int used)
+{
+  *bs=(BitStrType)BitString::freeList[used];
+  BitString::freeList[used]=bs;
+}
+
+
+inline
+const BitString&
+BitString::operator=(const BitString &b)
+{
+  size=b.size;
+  num_u_int=b.num_u_int;
+  bs=Allocate(num_u_int);
+  ASSERT(bs);
+  for (int i=0; i<num_u_int; i++) 
+     *(bs+i)=*(b.bs+i);
+  return *this;
+}
+
+
+inline
+BitString::BitString(const BitString &b)
+{
+  ASSERT(b.size>0);
+  size=b.size;
+  num_u_int=b.num_u_int;
+  bs=Allocate(b.num_u_int);
+  ASSERT(bs);
+  for (int i=0; i<num_u_int; i++) 
+     *(bs+i)=*(b.bs+i);
+}
+
+
+inline
+BitString::BitString(int sz, int init)
+{
+  ASSERT(sz>0);
+  size=sz;
+  num_u_int=(size+UINTSIZE-1)/UINTSIZE;
+  bs=Allocate(num_u_int);
+// initialize: although this is "slower",  it is much safer!
+  if (init) init = ~0;  // either 0 or -1 is assigned.
+  
+  for (int i=0; i<num_u_int; i++) 
+     *(bs+i)=init;
+}
+
+inline
+BitString::~BitString()
+{ Deallocate(bs, num_u_int); }

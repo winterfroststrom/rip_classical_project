@@ -1,0 +1,347 @@
+#include "objects.h"
+//#include "list.h"
+//#include "parser.h"
+#include "slist.h"
+#include "array.h"
+
+// inline functions
+
+// A dummy term of no meaning
+inline
+TermRep::TermRep()
+: p(0), size(0), s(NULL), count(1) {}
+
+// garbage colllection here seems to give trouble
+inline
+TermRep::TermRep(const TermRep& t, Context context)
+: size(t.size), p(t.p), s(NULL), count(1)
+{
+  if (p && size) {
+    s=Allocate(size);
+    for(int i=0;i<size;i++)
+       s[i]=(IsVar(t.s[i]))?(t.s[i]+context) : t.s[i];
+  } else s=(t.s) ? (Sym*)new SList<Term>(*(SList<Term>*)t.s) : NULL;
+}
+
+inline
+TermRep::TermRep(Size sz, Pred pred, Sym* syms)
+: size(sz), p(pred), s(syms), count(1)
+// assign only if is a normal node
+// source of error?!
+{}
+
+
+inline bool
+TermRep::IsNegation() const
+{return p<0;}
+
+
+
+inline bool
+TermRep::IsNegationOf(const TermRep& t) const
+{// cannot use operator== here, since p are not the same.
+  if (-p==t.p && size==t.size) {
+    for(int i=0;i<size;i++) {
+      if (s[i]!=t.s[i]) return FALSE;
+    }
+    return TRUE;
+  } else return FALSE;
+}
+
+
+inline Pred
+TermRep::GetPredicate() const
+{return p;}
+
+
+inline Sym
+TermRep::GetVariable() const
+{return *s;}
+
+
+inline LogicPrimitive
+TermRep::GetType() const
+{return (p)?Ordinary:(LogicPrimitive)(size);}
+
+
+inline const SList<Term>&
+TermRep::GetList() const
+{
+  ASSERT(GetType()!=Ordinary);
+  return *((SList<Term>*)s);
+}
+
+
+inline bool
+TermRep::IsOrdinary() const
+{return p;}
+
+
+inline void
+TermRep::Negate()
+{
+  ASSERT(p); 
+  p=-p;
+// 
+//   TermRep* t=new TermRep(rep);
+//   t->p=-t->p;
+//   if (--rep->count==0) delete rep;
+//   rep=t;
+}
+
+
+inline void
+Term::ShiftAndOr()
+{
+  ASSERT(GetType()==And || GetType()==Or);
+  TermRep* t=new TermRep(*rep);
+  if (--rep->count <= 0) delete rep;
+  rep=t;
+  rep->size=((LogicPrimitive)rep->size==And)?(Sym)Or:(Sym)And;
+}
+
+
+inline void
+Term::ShiftUnivExist()
+{
+  ASSERT(GetType()==Universal || GetType()==Existential);
+  TermRep* t=new TermRep(*rep);
+  if (--rep->count <= 0) delete rep;
+  rep=t;
+  rep->size=((LogicPrimitive)rep->size==Universal)?(Sym)Existential:(Sym)Universal;
+}
+
+
+inline Term&
+Term::operator=(const Term& t)
+{
+  t.rep->count++;
+  if (--rep->count <= 0) delete rep;
+  rep=t.rep;
+  return *this;
+}
+
+
+inline bool
+TermRep::operator==(const TermRep& t) const
+{
+  if (p==0 || p!=t.p || size!=t.size) return FALSE;
+  for(int i=0;i<size;i++) {
+    if (s[i]!=t.s[i]) return FALSE;
+  }
+  return TRUE;
+}
+
+
+inline bool
+TermRep::operator!=(const TermRep& t) const
+{
+  if (p==0 || p!=t.p || size!=t.size) return TRUE;
+  for(int i=0;i<size;i++) {
+    if (s[i]!=t.s[i]) return TRUE;
+  }
+  return FALSE;
+}
+
+
+inline bool
+ReplTable::Add(Sym slot, Sym thing)
+{
+  ASSERT(thing);
+  if (slot >= trueSize) Grow(slot);
+  // ok to enter if the thing is equal to the old thing
+  if (table[slot]==0 || table[slot]==thing) return table[slot]=thing;
+  else return FALSE;
+}
+
+
+inline void
+ReplTable::Grow(int sz)
+{
+  // do nothing if there is enough space
+  if (sz >= trueSize) {
+    Sym* oldtable=table;
+    trueSize=(sz+1)/Chunk*Chunk;
+    table=new int[trueSize];
+    for (int i=0;i<size;i++) {
+      table[i]=oldtable[i];
+    }
+    for (i=size;i<trueSize;i++) {
+      table[i]=0;
+    }
+    delete [] oldtable;
+  }
+}
+
+
+inline Sym
+ReplTable::Fetch (Sym slot) const
+{
+  if (slot < 0) return 0;
+  else return table[slot];
+}
+
+
+inline void
+ReplTable::AddBind(const Term& t1, const Term& t2, Context base)
+{if (base) AddBind(*t1.rep, *t2.rep, base);}
+
+
+inline void
+ReplTable::AddBind(const TermRep& t1, const TermRep& t2, Context base)
+{
+  ReInitialize();
+  for (int i=0; i<t1.size; i++)
+     if (t1.s[i] > base) Add(t1.s[i], t2.s[i]);
+}
+
+inline void
+Term::Subst(const ReplTable& table)
+{
+  if (rep->p) {
+    TermRep* oldrep=rep;
+    rep=new TermRep(*rep, table);
+    if (--oldrep->count <= 0) delete oldrep;
+  }
+}
+
+
+inline void
+ReplTable::ClearSlot(Sym slot)
+{
+  // range check
+  ASSERT(slot>0);
+  table[slot]=0;
+}
+
+inline
+ReplTable::ReplTable()
+: table(new int[Chunk]), size(0), trueSize(Chunk)
+{
+  // this is probably unnecessary,  since new gives 0 initilized memory
+  for(int i=0; i<trueSize; i++)
+     table[i]=0;
+}
+
+inline
+ReplTable::ReplTable(const ReplTable& tab)
+: table(new int[tab.trueSize]), size(tab.size), trueSize(tab.trueSize)
+{
+  for(int i=0; i<trueSize; i++)
+     table[i]=tab.table[i];
+}
+  
+inline void
+ReplTable::ReInitialize()
+{
+  for (int i=0; i<trueSize; i++)
+     table[i]=0;
+}
+
+inline
+ReplTable::~ReplTable()
+{
+  delete [] table;
+}
+
+
+inline
+TermRep::~TermRep()
+{
+   if (p) delete [] s;
+   // this MAY be a problem,  but it seems it's ok;
+   // this kind of node is always shared,  so no two terms will share a list
+// not doing this for the moment
+//   else delete (List<Term>*)s;
+}
+
+inline
+TermRep::TermRep(const Buffer& b, Pred pred)
+: size(b.GetCount()), p(pred), s((b.GetCount())?b.MakeArray():NULL), count(1){}
+//: rep(new TermRep(b.GetCount(), pred, (b.GetCount())?b.MakeArray():NULL)) {}
+
+inline
+TermRep::TermRep(const TermRep& t, const ReplTable& table, Context context)
+: size(t.size), p(t.p), s(NULL), count(1)
+{
+  ASSERT(p);
+  if (size) {
+    Sym fetched;
+    s=Allocate(size);
+    for (int i=0;i<size;i++) {
+      if (fetched=table.Fetch(t.s[i])) s[i]=fetched;
+      else s[i]=(IsVar(t.s[i])) ? (t.s[i]+context) : t.s[i];
+    }
+  }
+}
+
+
+inline     
+Term::Term(Pred pred, Sym sym)
+: rep(new TermRep(1, pred, new Sym[1]))
+{rep->s[0]=sym;}//rep->count++;}
+
+inline
+Term::Term(const Term& t, const ReplTable& table, Context context)
+: rep(new TermRep(*t.rep, table, context)) {}
+
+
+inline Sym*
+TermRep::Allocate(Size needed)
+{
+  static int poolCount=0;
+  static int base=0;
+  static Sym* pool=new Sym[poolSize];
+  static Sym* trail;
+  static Sym* head;
+  
+  base=poolCount;
+  if ((poolCount += needed) < poolSize) {
+    return pool + base;
+  } else if (freeList[needed]) {
+    trail=head;
+    freeList[needed]=(Sym*)*head; // cannot cause seg fault
+    return trail;
+  } else {
+    pool=new Sym[poolSize];
+    poolCount=needed;
+    return pool;
+  }
+}
+
+inline void
+TermRep::Deallocate(Sym* s, Size used)
+{
+  *s=(Sym)freeList[used];
+  freeList[used]=s;
+}
+
+
+// 
+// inline void*
+// TermRep::operator new(size_t size)
+// {
+//   static int poolCount=0;
+//   static TermRep* pool=new TermRep[poolSize];
+//   static TermRep* trail;
+//   
+//   if (++poolCount < poolSize) {
+//     return &pool[poolCount-1];
+//   } else if (free) {
+//     trail=free;
+//     free=(TermRep*)free->p; // cannot cause seg fault
+//     return trail;
+//   } else {
+//     pool=new TermRep[poolSize];
+//     poolCount=0;
+//     return pool;
+//   }
+// }
+// 
+// 
+// inline void
+// TermRep::operator delete(void* p, size_t)
+// {
+//   ((TermRep*)p)->p=(Sym)free;
+//   free=(TermRep*)p;
+// }

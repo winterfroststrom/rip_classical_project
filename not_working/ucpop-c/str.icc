@@ -1,0 +1,69 @@
+// string include functions
+
+inline int
+String::Length() const
+{return length;}
+
+
+// assume input is all lower case
+inline bool 
+String::operator==(const String& s) const
+{return (s.length==length && strcmp(s.str, str)==0);}
+
+
+inline bool 
+String::operator!=(const String& s) const
+{return (s.length!=length || strcmp(s.str, str)!=0);}
+
+
+inline bool 
+String::operator<(const String& s) const
+{return strcmp(str, s.str)<0;}
+
+
+inline bool 
+String::operator>(const String& s) const
+{return strcmp(str, s.str)>0;}
+
+
+inline bool 
+String::operator>=(const String& s) const
+{return strcmp(str, s.str)>=0;}
+
+
+inline bool 
+String::operator<=(const String& s) const
+{return strcmp(str, s.str)<=0;}
+
+
+inline String
+String::operator+(const String& s) const
+{
+  String tmp(s.length+length+1);
+  strcpy(tmp.str,str);
+  strcat(tmp.str,s.str);
+  return tmp;
+}
+
+inline const String&
+String::operator+=(const String& s)
+{
+  length+=s.length;
+  char *p=new char[length+1];
+  strcpy(p, str);
+  strcat(p, s.str);
+  delete [] str;
+  str=p;
+  return *this;
+}
+
+inline const String&
+String::operator=(const String& s)
+{
+  if (&s==this) return *this;
+  length=s.length;
+  if (str) delete [] str;
+  str=new char[length+1];
+  strcpy(str, s.str);
+  return *this;
+}

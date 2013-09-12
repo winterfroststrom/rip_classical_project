@@ -1,0 +1,45 @@
+
+BTW: It'd be best if you could handle both `:and' and `and' in the syntax -
+i.e. perhaps delete all colons in the file before you parse it. 
+
+Thanks.
+
+        Dan
+
+(defun office-world ()
+  (reset-domain)
+
+  (define (operator move)
+      :parameters (?b ?m ?l)
+      :precondition (:and (briefcase ?b) (:neq ?m ?l) (at ?b ?l))
+      :effect (and (at ?b ?m)
+                   (:not (at ?B ?l))
+                   (forall ((object ?x)) 
+                      (when (in ?x ?b) 
+                        (:and (at ?x ?m) (:not (at ?x ?l)))))))
+       
+  (define (operator take-out)
+      :parameters (?x ?b)
+      :precondition (in ?x ?b)
+      :effect (:not (in ?x ?b)))
+      
+  (define (operator put-in)
+      :parameters (?x ?b ?l)
+      :precondition (:and (:neq ?x ?B) (at ?x ?l) (at ?B ?l) (briefcase ?b))
+      :effect (in ?x ?b))
+
+  (define (operator print-check-for)
+      :parameters (?p)
+      :precondition (person ?p)
+      :create ((object ?c))
+      :effect (:and (check ?c) (at ?c office) (written-for ?p ?c)))
+  )
+
+(push (make-problem
+       :name 'all-home
+       :domain #'office-world
+       :inits '((object d) (object b) (briefcase b)
+		(at B home) (at d office))
+       :goal '(:forall ((object ?o))
+                (at ?o home)))
+      *tests*)

@@ -1,0 +1,11 @@
+inline const String& 
+Problem::GetName() const
+{return name;}
+
+inline const List<Node>& 
+Problem::GetInitConds() const
+{return inits;}
+
+inline const List<Node>& 
+Problem::GetGoals() const
+{return goals;}

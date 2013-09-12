@@ -1,0 +1,335 @@
+// list.icc:   definitions
+// For debugging,  the code are not d
+
+// implementation of ListNode<Type>, list and list iterator
+
+template <class Type>
+inline Type*
+List<Type>::GetFirst() const
+{return (head)?head->item:NULL;}
+
+
+template <class Type>
+inline int
+List<Type>::GetSize() const
+{return count;}
+
+
+template <class Type>
+inline bool
+List<Type>::Empty() const 
+{return count==0;}
+
+
+template <class Type>
+inline void 
+List<Type>::FreeUp()
+{head=tail=NULL;count=0;}// later add listnodes to free list
+
+
+template <class Type>
+inline List<Type>&
+List<Type>::operator+=(const List<Type> &l) 
+{Append(l); return (*this);}
+
+
+template <class Type>
+inline List<Type>&
+List<Type>::operator+=(Type& itm) 
+{Prepend(itm); return (*this);}
+
+
+template <class Type>
+inline List<Type>&
+List<Type>::operator+=(Type* itm) 
+{Prepend(itm); return (*this);}
+
+
+template <class Type>
+inline void 
+List<Type>::Push(Type& itm) 
+{Prepend(itm);}
+
+
+template <class Type>
+inline void 
+List<Type>::Push(Type* itm) 
+{Prepend(itm);}
+
+
+template <class Type>
+inline List<Type>
+List<Type>::operator-(Type& itm) const
+{
+  List<Type> tmp;
+  for(ListNode<Type>* c=head;c;c=c->next) 
+     if (c->item != &itm) tmp.Append(c->item);
+  return tmp;
+}
+
+
+template <class Type>
+inline List<Type>
+List<Type>::operator-(Type* itm) const
+{
+  List<Type> tmp;
+  for(ListNode<Type>* c=head;c;c=c->next) 
+     if (c->item != itm) tmp.Append(c->item);
+  return tmp;
+}
+
+
+template <class Type>
+inline List<Type>
+operator+(Type& itm, const List<Type> &l)
+{
+  List<Type> tmp(*this); 
+  tmp.Prepend(itm);
+  return tmp;
+}
+
+
+template <class Type>
+inline const List<Type>&
+List<Type>::operator=(const List<Type>& l)
+{
+  ASSERT(this!=&l);
+  head=l.head;
+  tail=l.tail;
+  count=l.count;
+  return (*this);
+}
+
+
+// Please Note:  This is counter intuitive (prepends).
+// This is done because I cannot get the friend to work.
+// This will stay as is until a solution comes up
+
+template <class Type>
+inline List<Type>
+List<Type>::operator+(Type& itm) const
+{
+  List<Type> tmp(*this); 
+  tmp.Prepend(itm);
+  return tmp;
+}
+
+
+template <class Type>
+inline List<Type>
+List<Type>::operator+(Type* itm) const
+{
+  List<Type> tmp(*this); 
+  tmp.Prepend(itm);
+  return tmp;
+}
+
+// // do a completely nondestructive copy
+// {
+//   List<Type>& tmp=*new List<Type>;
+//   tmp.Copy(*this);
+//   tmp.Append(itm);
+//   return tmp;
+// }
+
+
+//member
+
+template <class Type>
+inline bool
+List<Type>::operator==(const Type* itm) const
+{
+  for(const ListNode<Type>* c=head;c;c=c->next) 
+     if (c->item==itm) return TRUE;
+  return FALSE;
+}
+
+
+template <class Type>
+inline bool
+List<Type>::operator==(const Type& itm) const
+{
+  for (const ListNode<Type>* c=head;c;c=c->next) 
+     if (c->item==&itm) return TRUE;
+  return FALSE;
+}
+
+
+template <class Type>
+inline bool
+List<Type>::operator!=(Type* itm) const
+{
+  for( ListNode<Type>*c=head;c;c=c->next) 
+     if (c->item==itm) return FALSE;
+  return TRUE;
+}
+
+
+template <class Type>
+inline bool
+List<Type>::operator!=(Type& itm) const
+{
+  return (*this)==&itm;
+}
+
+
+// completely copy stuff; may be point for opt
+template <class Type>
+inline List<Type>
+List<Type>::operator+(const List<Type> &l) const
+{
+  List<Type> tmp;
+  tmp.Copy(*this);
+  tmp.Append(l);
+  return tmp;
+}
+
+
+// user should always pass DISTINCT objects (separate mem locations)
+// i.e.  this is call by reference
+template <class Type>
+inline void
+List<Type>::Append(Type& item)
+{				 // does not append NULL items
+  if (!head) head=tail=new ListNode<Type>(item);
+  else tail=tail->next=new ListNode<Type>(item);
+  count++;
+}
+
+
+template <class Type>
+inline void
+List<Type>::Append(Type* item)
+{				 // does not append NULL items
+  if (!item) return;
+  if (!head) head=tail=new ListNode<Type>(item);
+  else tail=tail->next=new ListNode<Type>(item);
+  count++;
+}
+
+
+template <class Type>
+inline void
+List<Type>::Prepend(Type& item)
+{
+  if (!head) head=tail=new ListNode<Type>(item);
+  else head=new ListNode<Type>(item, head);
+  count++;
+}
+
+
+template <class Type>
+inline void
+List<Type>::Prepend(Type* item)
+{
+  if (!item) return;
+  if (!head) head=tail=new ListNode<Type>(item);
+  else head=new ListNode<Type>(item, head);
+  count++;
+}
+
+// could share the same list,  but wait
+template <class Type>
+inline void
+List<Type>::Append(const List<Type> &l)
+{
+  if (l.head) {
+//    List<Type>& rear=*new List<Type>;
+    List<Type> rear;
+    rear.Copy(l);
+    if (!Empty()) {
+      tail->next=rear.head;
+      tail=rear.tail;
+      count+=rear.count;
+    } else {
+      *this=rear;
+    }
+  }
+}
+
+
+// Will never destroy arg l, but will destroy itself 
+template <class Type>
+inline void
+List<Type>::Prepend(const List<Type> &l)
+{
+  if (l.head) {
+    List<Type> front;
+    front.Copy(l);
+    if (!Empty()) {
+      front.tail->next=head;
+      head=front.head;
+      count+=front.count;// added since this doesn\'t use append/prepend
+    } else {
+      *this=front;
+    }
+  }
+}
+
+
+// template <class Type>
+// inline void
+// List<Type>::Mapcar(void (*funcall) (Type& thing))
+// {
+//   ListNode<Type>* cursor=head;
+//   while (cursor) {
+//     funcall(*cursor->item);
+//     cursor=cursor->next;
+//   }
+// }
+
+
+template <class Type>
+inline Type*
+List<Type>::Pop()
+{
+  if (Empty()) return NULL;
+  Type* cacheval=head->item;
+  ListNode<Type>* tmp=head;
+  head=head->next;
+  delete tmp;
+  count--;
+  return cacheval;
+}
+
+
+template <class Type>
+inline ostream& 
+operator<< (ostream& os, const List<Type>& ls)
+{
+  ITERATE(t, tptr, ls, Type);
+
+  os << "( ";
+  while (t=tptr()) os << *t << " ";
+  os << ")";
+
+  return os;
+}
+
+
+// list iteration primitives
+
+template <class Type>
+inline void
+ListIterator<Type>::Reset()
+{c=l->head;}
+
+
+template <class Type>
+inline void 
+ListIterator<Type>::operator=(const List<Type>& ls)
+{l=&ls;c=ls.head;}
+
+
+template <class Type>
+inline Type*
+ListIterator<Type>::operator() (void)
+{// can speed up by adding sentinel evaluated (?!)
+  Type* ret;
+  if (c && l->tail && (c!=l->tail->next)) {
+    ret=c->item;		 // this is just for checking
+    c=c->next;
+    ASSERT(ret);		 // for my proj,  I should not have NULL
+    return ret;
+  } else return NULL;  		 // I must be at the endn 
+}

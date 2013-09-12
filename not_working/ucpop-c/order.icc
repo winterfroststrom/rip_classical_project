@@ -1,0 +1,63 @@
+#include "plan.h"
+#include "bitstring.h"
+#include "list.h"
+#include "slist.h"
+#include "order.h"
+
+
+inline StepId 
+Pair::GetFirst() const
+{return first;}
+
+inline StepId
+Pair::GetSecond() const
+{return follow;}
+
+
+// 
+// BitString&
+// Plan::PossiblyBefore(int step)
+// {
+//   if (!step) { 		 	 // nothing is before step 0
+//     BitString& b=*new BitString(highStep+1, ON); // include step 0
+//     OrderedPair *pair;
+//     ListIterator<OrderedPair> optr(ordering);
+//     while (pair=optr()) 
+//        if (pair->bef==step) b-=pair->aft;
+//     return b;
+//   } else return NULL;
+// }
+// 
+// 
+// 
+// BitString&
+// Plan::PossiblyAfter(int step)
+// {
+//   if (!step) { 		 	 // nothing is before step 0
+//     BitString& b=*new BitString(highStep+1, ON); // include step 0
+//     OrderedPair *pair;
+//     ListIterator<OrderedPair> optr(ordering);
+//     while (pair=optr()) 
+//        if (pair->aft==step) b-=pair->bef;
+//     return b;
+//   } else return NULL;
+// }
+// 
+// 
+// BitString&
+// Plan::PossiblyBetween(int step)
+// {return PossiblyBefore(step) & PossiblyAfter(step);}
+// 
+// 
+
+inline
+Pair::Pair(StepId f1, StepId f2)
+: first(f1), follow(f2), GC() {}
+
+inline
+Pair::Pair(const Pair& p)
+: first(p.first), follow(p.follow), GC() {}
+
+
+
+

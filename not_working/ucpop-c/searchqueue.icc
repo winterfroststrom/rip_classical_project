@@ -1,0 +1,83 @@
+// searchqueue.icc
+// $Header: /homes/iws/ctkwok/projects/RCS/searchqueue.icc,v 1.2 1993/07/04 05:08:34 ctkwok Exp $
+// $Log: searchqueue.icc,v $
+// Revision 1.2  1993/07/04  05:08:34  ctkwok
+// snlp
+//
+
+#include <stdlib.h>
+
+
+template <class T>
+inline T*
+SearchQueue<T>::GetFirst() const
+{
+  // find the first that is non-empty,  thus lowest rank
+  for(int i=0;i<=upperboundRank;i++) {
+    if (queue[i].Valid()) return queue[i].Pop();
+  }
+  return NULL;
+}
+     
+
+
+template <class T>
+inline int
+SearchQueue<T>::Merge(List<T> l)
+{
+  // if anything goes wrong,  remember the greatest rank
+  // assume there cannot be rank 0 (which there isn't)
+  int rank;
+  ITERATE(p, l, next, T);
+  int searched=0;
+  // alloc if necessary;  otherwise let things stay
+  DOLIST(p, next) {
+    searched++;
+    rank=rankPlan(*p);
+    if (upperboundRank < rank) {
+                                  // not enough space in cache,  make more
+      int oldMax=upperboundRank;  // remember the old stuff; -1 for 0
+      List<T>* oldqueue=queue;
+      while (upperboundRank < rank) {
+	upperboundRank *= 2;      // Hope this is a good heuristics
+      }
+      queue=new List<T>[upperboundRank+1];
+      for (int i=0;i<=oldMax;i++)  // copy the old stuff
+	 queue[i]=oldqueue[i];
+      delete [] oldqueue;
+    }
+    queue[rank].Push(p);
+  }
+  return searched++;
+}
+
+
+// template <class T>
+// inline void
+// SearchQueue<T>::QSort()
+// {
+//   qsort( queue, size, sizeof(T*), compar );
+// }
+// 
+
+// destructive op
+// template <class T>
+// inline void
+// SearchQueue<T>::Merge(List<T>& l)
+// {
+//   ListNode<T>** c=&l.P; // locative
+//   
+//   for (int i=0; i<size; i++) {
+//     while (*c != List<T>::NilListNode &&
+// 	   compar(&(queue[i]), &((*c)->hd))>=0)
+//        {
+// 	 c=&(*c)->tl;
+//        } 
+//     // ok now in correct place.
+//     *c=new ListNode<T>(queue[i], *c);
+// //    cerr << "MERGING:::::::: " << endl;
+// //    cerr << *queue[i] << endl;
+//     c=&(*c)->tl; // skip over new elem.
+//   }
+// }
+// 

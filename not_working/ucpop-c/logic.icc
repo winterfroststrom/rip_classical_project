@@ -1,0 +1,38 @@
+inline List<Node>
+Node::GetConditions() const
+{
+//  ASSERT(GetType()==Conditional);
+  return conditionalList;
+}
+
+inline List<Node>
+Node::GetNegConditions() const
+{
+//  ASSERT(GetType()==Conditional);
+  return negConditionalList;
+}
+
+
+inline List<Node>
+Node::GetList() const
+{
+  ASSERT(GetType()!=Ordinary);
+  return *((List<Node>*)slot());
+}
+
+
+inline Node&
+Node::GetTerm()
+{
+  ASSERT(GetType()==Not);
+  return *((Node*)slot());
+}
+
+
+inline Context
+Node::GetBase() const
+{return base;}
+
+inline List<Node>
+Node::GetTypeList() const
+{return conditionalList;}

@@ -1,0 +1,200 @@
+#include "bitstring.h"
+#include "step.h"
+#include "openc.h"
+#include "effect.h"
+#include "order.h"
+#include "logic.h"
+#include "link.h"
+#include "unsafe.h"
+#include "plan.h"
+#include "template.h"
+#include "parser.h"
+
+// plan inline functions
+
+// sets the rank of plan (preventing multiple evalutaion of plans)
+// defaults to Rank3
+
+
+inline int
+Plan::SetRank()
+{return planRank=rankPlan(*this);}
+
+
+inline int
+Plan::GetRank() const
+{return planRank;}
+
+
+//insert g right here if all conditions are ok
+inline bool
+Plan::NewGoal(Openc& g)
+{
+  register StepId id=g.GetOwner();
+  // check for same step duplication or 
+  // contradiction of openc
+  ITERATE(oc, opencs, ocptr, Openc);
+  DOLIST(oc, ocptr) {
+    if (oc->GetOwner()==id) {
+      if (g == *oc) return TRUE;
+      if (oc->IsNegationOf(g)) return FALSE;
+    }
+  }
+  
+  // check for same step duplication or 
+  // contradiction of link conditions
+  ITERATE(l, links, lptr, Link);
+  DOLIST(l, lptr) {
+    if (l->GetConsumer()==id) {
+      if (g == *l) return TRUE;
+      if (l->IsNegationOf(g)) return FALSE;
+    }
+  }
+  // since duplication also return TRUE, has to do push here
+  opencs.Push(g);  
+  return TRUE;
+}
+
+
+inline bool
+Plan::HandleAnd(const List<Openc>& goals) 
+{
+  // serious GC problem:  if this fails,  you should collect garbage
+  ITERATE(g, goals, gptr, Openc);
+  
+  DOLIST (g, gptr)
+     if (!HandleAnd(*g)) return FALSE;
+
+  // add bindings to plan from bs here
+  return TRUE;
+}
+
+
+inline bool
+Plan::HandleAnd(Openc& goal) 
+{
+  if (goal.IsBinding())
+     return bindings.AddBind(goal);
+  else return NewGoal(goal);
+}
+
+
+inline bool 
+Plan::IsComplete () const
+{return opencs.Empty() && unsafes.Empty();}
+
+
+inline Plan*
+Plan::TweakPlan( StepId highstep, 
+		 const List<Step>& stepl, 
+		 const List<Openc>& opencl,
+		 const List<Effect>& effectl, 
+		 const List<Link>& linkl, 
+		 const List<Unsafe>& unsafel, 
+		 const List<Pair>& orderl,
+		 List<Varset>* newCS,
+		 const List<Openc>& addGoal,
+		 Context context
+		 ) const
+{
+  if (!newCS) cerr << "Warning! :::::::::::" <<endl;
+  if (newCS) {
+    Plan* plan1=new Plan( highstep, stepl, opencl, effectl, 
+			  linkl, unsafel, orderl, bindings,
+			  context
+#ifdef DEBUG
+			  ,planId
+#endif
+			  );
+    plan1->bindings.Prepend(*newCS);
+    if (!addGoal.Empty()) {
+      if (plan1->HandleAnd(addGoal)) return plan1;
+      else {
+	delete plan1;
+	return NULL;
+      }
+    } else return plan1;
+  } else return NULL;
+}
+
+
+inline Plan*
+Plan::TweakPlan( StepId highstep, 
+		 const List<Step>& stepl, 
+		 const List<Openc>& opencl,
+		 const List<Effect>& effectl, 
+		 const List<Link>& linkl, 
+		 const List<Unsafe>& unsafel, 
+		 const List<Pair>& orderl,
+		 List<Varset>* newCS,
+		 Openc* addGoal
+		 ) const
+{
+  if (!newCS) cerr << "Warning! :::::::::::" <<endl;
+  if (newCS) {
+    Plan* plan1=new Plan( highstep, stepl, opencl, effectl, 
+			  linkl, unsafel, orderl, bindings,
+			  planContext
+#ifdef DEBUG
+			  ,planId
+#endif
+			  );
+    plan1->bindings.Prepend(*newCS);
+    if (addGoal) {
+      switch (addGoal->GetType()) {
+      case And:
+	if (plan1->HandleAnd(addGoal->GetList())) return plan1;
+	break;
+      case Ordinary:
+	if (plan1->HandleAnd(*addGoal)) return plan1;
+	break;
+      case Or:
+	return plan1;
+	break;
+      default:
+	cerr << "Error: Should not have Or or other type here.\n";
+      }
+      delete plan1;
+      return NULL;
+    } else return plan1;  // if (addGoal)
+  } else return NULL; // newCS is null
+}
+
+
+inline List<Plan>
+Plan::AddStep(Openc& oc)
+{
+  StepId newStepNum=highStep+1;
+  List<Plan> newPlans;
+  Pred pred=oc.GetPredicate();
+  DBG(_ACTION_, cerr << "Adding step for " << oc << " : " << newStepNum << endl);
+  ITERATE_NO_INIT(node, nptr, Node);
+  ITERATE_NO_INIT(add, aptr, Node);
+  
+  Step* newstep;
+  
+  ITERATE(entry, templates, next, TemplateEntry)
+  DOLIST (entry, next) {
+    nptr=entry->GetEffects();
+    DOLIST (node, nptr) {
+      aptr=node->GetList();
+      DOLIST (add, aptr) {
+	if (pred==add->GetPredicate()) {
+	  newstep=new Step(*entry, planContext, newStepNum);
+	  newPlans += NewLink(oc, *newstep, entry->GetContext());
+	}
+      }
+    }  
+  }
+  return newPlans;
+}
+
+// later this can be incorporated into the NewLink code.
+inline List<Plan>
+Plan::ReuseStep(Openc& oc)
+{
+  DBG(_ACTION_, cerr << "Reusing step for " << oc << "with" << PossiblyBefore(oc.GetOwner()) << endl);
+   
+  return NewLink(oc, PossiblyBefore(oc.GetOwner()));
+}
+

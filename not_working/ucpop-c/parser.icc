@@ -1,0 +1,306 @@
+
+void
+ReformNode(Node& nod)
+{
+  switch(nod.GetType()) {
+  case Ordinary: 
+    break;
+  case And:
+  case Or:
+    ReformTree(nod.GetList()); break;
+  case Not:
+    nod=nod.GetTerm();
+    NegateNode(nod);
+    break;
+  case Conditional:
+    // reform the lists for the two componenets.
+    // all things are done during node formation
+    break;
+  case Universal:
+  case Existential:
+    ReformTree(nod.GetList());
+    break;
+  default:
+    cerr << "Unknown type\n"; break;
+  }
+}
+
+
+void
+NegateNode(Node& nod)
+{
+  switch (nod.GetType()) {
+  case Ordinary:
+    nod.Negate(); break;
+  case And:
+  case Or:
+    nod.ShiftAndOr(); 
+    NegateTree(nod.GetList());
+    break;
+  case Not:
+    nod=nod.GetTerm();
+    ReformNode(nod);
+    break;
+  case Universal:
+  case Existential:
+    nod.ShiftUnivExist();
+    NegateTree(nod.GetList());
+  default:
+    cerr << "Unknown type!\n"; break;
+  }
+}
+
+
+void
+ReformTree(List<Node>& nl)
+{
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next)
+     ReformNode(*nod);
+}
+
+
+void
+NegateTree(List<Node>& nl)
+{
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next)
+     NegateNode(*nod);
+}
+
+
+List<Node>
+RemoveAndTree(List<Node>& nl)
+{
+  List<Node> newList;
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next) {
+    switch (nod->GetType()) {
+    case Ordinary:
+    case Conditional:
+      newList += nod; break;
+    case And:
+      newList += RemoveAndTree(nod->GetList());
+      break;
+    case Or:
+      newList += new Node(RemoveAndInOr(nod->GetList()), Or);
+      break;
+    case Not:
+      cerr << "Should not have not's here!!"; break;
+    case Universal:
+    case Existential:
+      newList += nod; break;
+    default:
+      cerr << "Should not happen!"; break;
+    }
+  }
+  return newList;
+} 
+
+
+// do things in the Or sublist
+List<Node>
+RemoveAndInOr(List<Node>& nl)
+{
+  List<Node> newList;
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next) {
+    switch (nod->GetType()) {
+    case Ordinary:
+      newList+=nod; break;
+    case And:
+      // this And is essential
+     newList+=new Node(RemoveAndTree(nod->GetList()), And);
+      break;
+    case Or:
+      newList+=new Node(RemoveAndInOr(nod->GetList()), Or);
+      break;
+    case Not:
+      cerr << "Should not have not's here!!"; break;
+    case Universal:
+    case Existential:
+      newList += nod; break;
+      break; // ignore
+    default:
+      cerr << "Should not happen!"; break;
+    }
+  }
+  return newList; 
+}
+
+
+List<Node>
+RemoveOrTree(List<Node>& nl)
+{
+  List<Node> newList;
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next) {
+    switch (nod->GetType()) {
+    case Ordinary:
+    case Conditional:
+      newList+=nod; break;
+    case Or:
+      newList+=RemoveOrTree(nod->GetList());
+      break;
+    case And:
+      newList+=new Node(RemoveOrInAnd(nod->GetList()), And);
+      break;
+    case Not:
+      cerr << "Should not have not's here!!"; break;
+    case Universal:
+    case Existential:
+      newList += nod; break;
+      break;
+    default:
+      cerr << "Should not happen!"; break;
+    }
+  }
+  return newList;
+} 
+
+List<Node>
+CopyTree(List<Node>& nl)
+{
+  List<Node> newList;
+  ITERATE(nod, nl, next, Node);
+  DOLIST(nod, next) {
+    switch(nod->GetType()) {
+    case Ordinary:
+      newList += new Node(*nod);
+      break;
+    case And:
+    case Or:
+    case Not:
+      newList += new Node(CopyTree(nod->GetList()), nod->GetType());
+      break;
+    case Conditional:
+    case Universal:
+    case Existential:
+      newList += new Node(CopyTree(nod->GetList()),  nod->GetTypeList(), nod->GetType());
+    default:
+      cerr << "Not implemented" << endl;
+      break;
+    }
+  }
+  return newList;
+}
+
+// do things in the Or sublist
+List<Node>
+RemoveOrInAnd(List<Node>& nl)
+{
+  List<Node> newList;
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next) {
+    switch (nod->GetType()) {
+    case Ordinary:
+      newList+=nod; break;
+    case Or:
+      // this Or is essential
+      newList+=new Node(RemoveOrTree(nod->GetList()), Or);
+      break;
+    case And:
+      newList+=new Node(RemoveOrInAnd(nod->GetList()), And);
+      break;
+    case Not:
+      cerr << "Should not have not's here!!"; break;
+    case Universal:
+    case Existential:
+      newList += nod; break;
+      break;
+    default:
+      cerr << "Should not happen!"; break;
+    }
+  }
+  return newList; 
+}
+
+
+int
+Parser::ParseFile()
+{
+  return yyparse();
+}
+
+
+Context
+Parser::NewScope()
+{return symtab.NewScope();}
+
+
+
+void 
+Parser::PrintTerm(Node* nod)
+{
+  cerr << *nod;
+}
+
+void 
+Parser::PrintStepName(Node* nod)
+{
+  if (nod->GetType()==Ordinary){
+    cerr << "(";
+    cerr << symtab.FetchOperator(nod->GetPredicate()) << " ";
+//    for(int i=0;i<nod->size;i++)
+//       cerr << symtab.FetchSymName(nod->s[i]) << " ";
+    cerr << ")";
+  } else {
+    List<Node> l;
+    l+= *nod;
+    PrintNodes(l);
+  }
+}
+
+
+void
+Parser::PrintNodes(const List<Node>& nl)
+{
+  ITERATE(nod, nl, next, Node);
+  DOLIST (nod, next) {
+    switch(nod->GetType()) {
+    case Ordinary:
+      PrintTerm(nod); break;
+    case And:
+      cerr << "{:AND "; 
+      PrintNodes(nod->GetList());
+      cerr << "}";
+      break;
+    case Or:
+      cerr << "{:OR "; 
+      PrintNodes(nod->GetList());
+      cerr << "}";
+      break;
+    case Not:
+      cerr << "{:NOT ";
+      PrintTerm(&(nod->GetTerm()));
+      cerr << "}";
+      break;
+    case Conditional:
+      cerr << "{:WHEN ";
+      cerr << "{:OPENC";
+      PrintNodes(nod->GetConditions());
+      cerr << "}";
+      cerr << "{:EFF ";
+      PrintNodes(nod->GetList());
+      cerr << "}";
+      cerr << "}";
+      break;
+    case Universal:
+      cerr << "{:FORALL";
+//      PrintNodes(nod->GetTypeList());
+      PrintNodes(nod->GetList());
+      cerr << "}";
+      break;
+    case Existential:
+      cerr << "{:EXISTS";
+      PrintNodes(nod->GetTypeList());
+      PrintNodes(nod->GetList());
+      cerr << "}";
+      break;
+    default:
+      cerr << "Unknown type\n"; break;
+    }
+  }
+}
+
+  

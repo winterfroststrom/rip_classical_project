@@ -1,0 +1,24 @@
+
+  ;; Define step for placing one block on another.
+(define (operator puton)
+  :parameters (?X ?Y ?Z)
+  :precondition (:and (on ?X ?Z) (clear ?X) (clear ?Y)
+		      (:neq ?Y ?Z) (:neq ?X ?Z)
+		      (:neq ?X ?Y) (:neq ?X Table))
+  :effect (:and (on ?X ?Y) (:not (on ?X ?Z)) 
+		(:when (:neq ?Z Table) (clear ?Z))
+		(:when (:neq ?Y Table) (:not (clear ?Y)))))
+
+(define (problem sussman-anomaly)
+       :init (:and (block A) (block B) (block C) (block Table)
+		   (on C A) (on A Table) (on B Table) 
+		   (clear C) (clear B) (clear Table))
+       :goals (:and (on B C) (on A B)))
+
+
+(define (problem tower-invert)
+       :init (:and (block A) (block B) (block C) (block Table)
+		   (on a b) (on b c) (on c table)
+		   (clear a) (clear table))
+       :goals (:and (on b c) (on c a)))
+

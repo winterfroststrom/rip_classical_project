@@ -1,0 +1,156 @@
+# Another really simple makefile
+
+SHELL = /bin/sh
+
+PROJECTROOT=.
+SECONDARYROOT = /bigtmp/Trix/projects
+CC = g++ 
+CFLAGS = -ggdb -Wall
+DEFINES = -DOUTLINE -DDEBUG
+EXTRAFLAGS = $(DEFINES)
+
+DBMDIR = dbmalloc
+DBMINCLUDE = $(PROJECTROOT)/$(DBMDIR)
+DBMLIBDIR = $(PROJECTROOT)/$(DBMDIR)
+INCLUDE = -I$(PROJECTROOT) 
+#-I$(DBMINCLUDE) 
+LIB = 
+#-L$(PROJECTROOT)/$(DBMDIR)
+DBMLIB = -ldbmalloc
+DBM = -L$(DBMLIBDIR) $(DBMLIB)
+ILD = ild
+
+
+OBJECTS = ldriver.o
+
+GOBJ=utility.o bitstring.o
+
+LISTOBJ=ldriver.o $(GOBJ) 
+LSDR=ldriver
+
+BITOBJ=$(GOBJ) bdriver.o
+BITDR=bdriver
+
+VOBJ=$(GOBJ) varset.o vdriver.o bitstring.o objects.o 
+VDR=vdriver
+
+TOBJ=$(GOBJ) tdriver.o table.o
+TDR=tdriver
+
+TMOBJ=$(GOBJ) tldriver.o
+TMDR=tldriver
+
+SOBJ=$(GOBJ) str.o sdriver.o
+SSRC=str.h str.cc str.icc
+
+SQOBJ=$(GOBJ) sqdriver.o bitstring.o
+
+AOBJ=$(GOBJ) array.o adriver.o 
+ASRC=adriver.cc array.h array.icc array.cc
+
+.SUFFIXES: .o .cc .h .icc
+
+.cc.o:
+	$(COMPILE) -c $<
+
+COMPILE=$(CC) $(CFLAGS) $(INCLUDE) $(DEBUG) $(EXTRAFLAGS) $(LIB) 
+
+all:
+	(cd $(SECONDARYROOT) ; make ucpop)
+
+adriver: $(AOBJ)
+	$(COMPILE) $(AOBJ) -o $@
+
+sdriver: $(SOBJ)
+	$(COMPILE) $(SOBJ) -o $@
+
+sqdriver: $(SQOBJ)
+	$(COMPILE) $(SQOBJ) -o $@
+
+tldriver:  tldriver.o utility.o 
+
+tldriver:
+	makedepend >& /dev/null
+	$(COMPILE) $(TMOBJ) -o $@
+
+ldriver: $(LISTOBJ)
+	$(COMPILE)  $(LISTOBJ)  -lg++ -o $@
+#	$(COMPILE) -Idbmalloc $(LISTOBJ) -Ldbmalloc -ldbmalloc -lg++-2-4-2 -o $@
+
+ldriver2:  ldriver2.o
+	$(COMPILE) $(DBM) utility.o ldriver2.o bitstring.o -o $@	
+
+ldriver3:  ldriver3.o
+	$(COMPILE) $(DBM) utility.o ldriver3.o bitstring.o -o $@	
+
+odriver: odriver.o order.o
+	$(COMPILE) odriver.o order.o bitstring.o -o $@	
+
+bdriver: $(BITOBJ)
+	$(COMPILE) $(BITOBJ) -o $@
+
+tdriver: $(TOBJ)
+	$(COMPILE) $(TOBJ) -o $@
+
+vdriver: $(VOBJ)
+	$(COMPILE) $(VOBJ) -o $@
+
+lex.yy.o: ucpop.l
+
+lex.yy.o:
+	flex ucpop.l
+	mv lex.yy.c lex.yy.cc
+	$(COMPILE) -c lex.yy.cc
+
+y.tab.o:
+	flex ucpop.l
+	mv lex.yy.c lex.yy.cc
+	yacc ucpop.y
+	mv y.tab.c y.tab.cc
+	$(COMPILE) -c y.tab.cc
+
+y.tab.o: ucpop.y ucpop.l
+
+POBJ=$(GOBJ) objects.o y.tab.o symtab.o str.o logic.o pdriver.o parser.o template.o step.o openc.o effect.o planner.o plan.o order.o varset.o unsafe.o link.o
+
+parser: $(POBJ) 
+
+PLOBJ=$(GOBJ) main.o objects.o y.tab.o symtab.o str.o logic.o parser.o template.o step.o openc.o effect.o planner.o plan.o order.o varset.o unsafe.o link.o array.o timer.o search.o
+
+timer: $(GOBJ) timer.o timertest.o
+	$(COMPILE) -o timer timer.o timertest.o 
+
+snlp: $(PLOBJ)
+
+snlp: 
+	$(COMPILE) $(PLOBJ) -ly -o $@ 
+
+relink:
+	(cd /bigtmp/Trix/projects; lndir ${HOME}/projects)
+
+ucpop: $(PLOBJ) 
+
+ucpop:
+	rm -f /bigtmp/Trix/bin/$@
+	$(COMPILE) $(PLOBJ) -lm -ly -lg++ -o /bigtmp/Trix/bin/$@
+
+log: all
+	makelog
+
+dbm: $(PLOBJ)
+	rm -f /bigtmp/Trix/bin/$@
+	$(COMPILE) -Idbmalloc $(PLOBJ) -Ldbmalloc -ldbmalloc -ly -lg++ -o /bigtmp/Trix/bin/$@
+
+
+clean:
+	(cd /bigtmp/Trix/projects; rm -f *~ *.o )
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+array.o: array.h utility.h /usr/include/stdarg.h /usr/include/ansi_compat.h
+array.o: /usr/include/stdio.h /usr/include/string.h /usr/include/ctype.h
+array.o: /usr/include/stdlib.h array.icc
+bdriver.o: bitstring.h
+bitstring.o: bitstring.h utility.h /usr/include/stdarg.h
+bitstring.o: /usr/include/ansi_compat.h /usr/include/stdio.h
+bitstring.o: /usr/include/string.h /usr/include/ctype.h /usr/include/stdlib.h
+bitstring.o: bitstring.icc

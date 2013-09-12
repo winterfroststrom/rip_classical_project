@@ -1,0 +1,75 @@
+(define (operator pickup)
+      :parameters ((object ?x) (location ?loc))
+      :precondition (:and (:neq ?x robot) (empty-handed) (at ?x ?loc) (at robot ?loc))
+      :effect
+      (:and (grasping ?x) (:not (empty-handed))))
+
+(define (operator drop)
+      :parameters ((object ?x))
+      :preecondition (:and (:neq ?x robot) (grasping ?x))
+      :effect
+      (:and (empty-handed) (:not (grasping ?x))))
+
+(define (operator move)
+      :parameters ((location ?from) (location ?to))
+      :precondition (:and (:neq ?from ?to) (at robot ?from) (connected ?from ?to))
+      :effect
+      (:and (at robot ?to) (:not (at robot ?from)) 
+	(:forall (?x)
+	(:when (:and (grasping ?x) (object ?x))
+        (:and (at ?x ?to) (:not (at ?x ?from)))))))
+;;;UCPOP(31): (bf-control 'r-test1)
+;;;
+;;;Initial  : ((LOCATION RM1) (LOCATION RM2) (OBJECT BOX1) (OBJECT BOX2)
+;;;            (OBJECT ROBOT) (CONNECTED RM1 RM2) (CONNECTED RM2 RM1)
+;;;            (AT BOX1 RM2) (AT BOX2 RM2) (EMPTY-HANDED) (AT ROBOT RM1))
+;;;
+;;;Step 1  : (MOVE RM1 RM2)         Created 2 
+;;;           0  -> (NOT (GRASPING BOX1))
+;;;           0  -> (AT ROBOT RM1)      
+;;;           0  -> (CONNECTED RM1 RM2) 
+;;;           0  -> (LOCATION RM1)      
+;;;           0  -> (LOCATION RM2)      
+;;;Step 2  : (PICKUP BOX1 RM2)      Created 3 
+;;;           0  -> (EMPTY-HANDED)      
+;;;           0  -> (AT BOX1 RM2)       
+;;;           2  -> (AT ROBOT RM2)      
+;;;           0  -> (OBJECT BOX1)       
+;;;           0  -> (LOCATION RM2)      
+;;;Step 3  : (MOVE RM2 RM1)         Created 1 
+;;;           3  -> (GRASPING BOX1)     
+;;;           0  -> (OBJECT BOX1)       
+;;;           2  -> (AT ROBOT RM2)      
+;;;           0  -> (CONNECTED RM2 RM1) 
+;;;           0  -> (LOCATION RM2)      
+;;;           0  -> (LOCATION RM1)      
+;;;
+;;;Goal    : (AT BOX1 RM1)
+;;;           1  -> (AT BOX1 RM1)       
+;;;Complete!
+;;;
+;;;UCPOP (Init = 11 ; Goals = 3 ) => Win  (3 steps)     CPU 117      
+;;;     Nodes (V = 20  ; Q = 11  ; C = 32  )             Branch 1.55      
+;;;     Working Unifies: 157                             Bindings added: 25   
+;;;NIL
+
+(define (problem r-test1)
+       :init (:and (location rm1) (location rm2) 
+		(object box1) (object box2) (object robot)
+		(connected rm1 rm2)
+		(connected rm2 rm1)
+		(at box1 rm2) (at box2 rm2)
+		(empty-handed)
+		(at robot rm1))
+       :goals (at box1 rm1))
+
+
+(define (problem r-test2)
+       :init (:and (location rm1) (location rm2) 
+		(object box1) (object box2) (object robot)
+		(connected rm1 rm2)
+		(connected rm2 rm1)
+		(at box1 rm2) (at box2 rm2)
+		(empty-handed)
+		(at robot rm1))
+       :goals (:and (at box1 rm1) (at box2 rm1)))

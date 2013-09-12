@@ -1,0 +1,60 @@
+// inline functions
+
+inline int
+SymArray::GetCount() const
+{return count;}
+
+// recycle
+inline int
+SymArray::Reset()
+{int tmp=count;count=0;return tmp;}
+
+
+inline Sym*
+SymArray::MakeArray() const
+{
+  Sym *s=new Sym[count];
+  for (int i=0;i<count;i++) s[i]=set[i];
+  return s;
+}
+     
+// returns index, -1 if not found
+inline int
+SymArray::Lookup(Sym thing) const
+{
+  for(int i=0;i<count;i++) {
+    if(set[i]==thing) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+
+inline bool
+SymArray::operator==(Sym thing) const
+{return Lookup(thing)>=0;}
+
+
+inline bool
+SymArray::operator!=(Sym thing) const
+{return Lookup(thing)<0;}
+
+
+inline int
+SymArray::Add(Sym thing) 
+{
+  ASSERT(count<size);
+  set[count]=thing;
+  return count++;
+}
+
+
+inline Sym
+SymArray::operator[](int index) const
+{ASSERT(index >=0 && index<count); return set[index];}
+
+
+inline int
+SymArray::operator+=(Sym thing) 
+{return Add(thing);}

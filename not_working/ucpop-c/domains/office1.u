@@ -1,0 +1,19 @@
+;  (define (operator move)
+;      :parameters (?b ?m ?l)
+;      :precondition (:and (briefcase ?b) (:neq ?m ?l) (at ?b ?l))
+;      :effect (and (at ?b ?m)
+;                   (:not (at ?B ?l))
+;                   (forall ((object ?x)) 
+;                      (when (in ?x ?b) 
+;                        (:and (at ?x ?m) (:not (at ?x ?l)))))))
+       
+  (define (operator take-out)
+      :parameters (?x ?b)
+      :precondition (in ?x ?b)
+      :effect (:not (in ?x ?b)))
+      
+  (define (operator put-in)
+      :parameters (?x ?b ?l)
+      :precondition (:and (:neq ?x ?B) (at ?x ?l) (at ?B ?l) (briefcase ?b))
+      :effect (in ?x ?b))
+

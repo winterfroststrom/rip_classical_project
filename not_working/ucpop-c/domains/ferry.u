@@ -1,0 +1,33 @@
+(define (operator board)
+      :parameters ((auto ?x)(place ?y))
+      :precondition (:and (at ?x ?y)(at-ferry ?y)(empty-ferry))
+      :effect
+      (:and (on ?x ferry) (:not (at ?x ?y)) (:not (empty-ferry))))
+
+(define (operator sail)
+      :parameters ((place ?x)(place ?y))
+      :precondition (:and (at-ferry ?x) (:neq ?x ?y))
+      :effect (:and (at-ferry ?y) (:not (at-ferry ?x))))
+
+(define (operator debark)
+      :parameters ((auto ?x)(place ?y))
+      :precondition (:and (on ?x ferry)(at-ferry ?y))
+      :effect (:and (:not (on ?x ferry)) (at ?x ?y) (empty-ferry)))
+ 
+(define (problem test-ferry3) 
+       :init (:and (place a) (place b) (auto c1) (auto c2)
+		(at c1 a)(at c2 a)(at-ferry a)
+		(empty-ferry))
+       :goals (at c1 b))
+
+(define (problem test-ferry) 
+       :init (:and (place a) (place b) (auto c1) (auto c2)
+		(at c1 a)(at c2 a)(at-ferry a)
+		(empty-ferry))
+       :goals (:and (at c2 b) (at-ferry a)))
+ 
+(define (problem test-ferry2) 
+       :init (:and (place a) (place b) (auto c1) (auto c2)
+		(at c1 a)(at c2 a)(at-ferry a)
+		(empty-ferry))
+       :goals (:and (at c1 b)(at c2 b)))

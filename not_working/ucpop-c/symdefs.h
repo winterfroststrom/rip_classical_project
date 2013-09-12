@@ -1,0 +1,19 @@
+/* definitions of the tokens */
+#define LP 257
+#define RP 258
+#define DEFINE 259
+#define OPERATOR 260
+#define PARAMETERS 261
+#define PRECONDITION 262
+#define EFFECT 263
+#define DOMAIN 264
+#define PROBLEM 265
+#define FORALL 266
+#define EXISTS 267
+#define NOT 268
+#define AND 269
+#define OR 270
+#define CONSTANT 271
+#define VARIABLE 272
+#define INITS 273
+#define GOALS 274

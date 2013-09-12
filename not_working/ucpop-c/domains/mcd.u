@@ -1,0 +1,73 @@
+  (define (operator puton)
+      :parameters (?x ?y ?d)
+      :precondition (:and (:neq ?x ?y) (:neq ?x table) (:neq ?d ?y) 
+			  (on ?x ?d) 
+			  (:or (:eq ?x Table)
+			       (:forall ((block ?b)) (:not (on ?b ?x))))
+			  (:or (:eq ?y Table)
+			       (:forall ((block ?b)) (:not (on ?b ?y)))))
+      :effect
+      (:and (:and (on ?x ?y) (:not (on ?x ?d)))
+
+	(:forall (?c)
+	 (:when (:or (:eq ?y ?c) (above ?y ?c))	(above ?x ?c)))
+	(:forall (?e)
+	 (:when (:and (above ?x ?e) (:neq ?y ?e) (:not (above ?y ?e)))
+		       	 (:not (above ?x ?e))))))
+
+  
+;;;UCPOP(41): (bf-control 'mcd-sussman-anomaly)
+;;;
+;;;Initial  : ((BLOCK A) (BLOCK B) (BLOCK C) (BLOCK TABLE) (ON C A) (ON B TABLE)
+;;;            (ON A TABLE))
+;;;
+;;;Step 1  : (PUTON C TABLE A)      Created 2 
+;;;           0  -> (ON C A)            
+;;;           0  -> (NOT (ON TABLE C))  
+;;;           0  -> (NOT (ON C C))      
+;;;           0  -> (NOT (ON B C))      
+;;;           0  -> (NOT (ON A C))      
+;;;Step 2  : (PUTON B C TABLE)      Created 3 
+;;;           0  -> (ON B TABLE)        
+;;;           0  -> (NOT (ON TABLE B))  
+;;;           0  -> (NOT (ON C B))      
+;;;           0  -> (NOT (ON B B))      
+;;;           0  -> (NOT (ON A B))      
+;;;           0  -> (NOT (ON TABLE C))  
+;;;           0  -> (NOT (ON C C))      
+;;;           0  -> (NOT (ON B C))      
+;;;           0  -> (NOT (ON A C))      
+;;;Step 3  : (PUTON A B TABLE)      Created 1 
+;;;           0  -> (ON A TABLE)        
+;;;           0  -> (NOT (ON TABLE A))  
+;;;           2  -> (NOT (ON C A))      
+;;;           0  -> (NOT (ON B A))      
+;;;           0  -> (NOT (ON A A))      
+;;;           0  -> (NOT (ON TABLE B))  
+;;;           0  -> (NOT (ON C B))      
+;;;           0  -> (NOT (ON B B))      
+;;;           0  -> (NOT (ON A B))      
+;;;
+;;;Goal    : (AND (ON B C) (ON A B))
+;;;           3  -> (ON B C)            
+;;;           1  -> (ON A B)            
+;;;Complete!
+;;;
+;;;UCPOP (Init = 7  ; Goals = 3 ) => Win  (3 steps)     CPU 400      
+;;;     Nodes (V = 54  ; Q = 25  ; C = 101 )             Branch 1.462963  
+;;;     Working Unifies: 976                             Bindings added: 163  
+;;;NIL
+; mcd-sussman-anomaly
+(define (problem msa) 
+       :init (:and (block a) (block b) (block c) (block Table)
+		(on c a) (on b table) (on a table))
+       :goals (:and (on b c) (on a b)))
+
+; mcd-tower-invert
+(define (problem mti)
+       :init (:and (block A) (block B) (block C) (block D) (block E) 
+		(block Table)
+		(clear a) (on a b) (on b c) (on c d) (on d e)(on e table)
+		(clear table))
+       :goals (:and (on b c) (on c d) (on d e) (on e a)))
+

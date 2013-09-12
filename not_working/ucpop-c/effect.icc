@@ -1,0 +1,90 @@
+// inline functions
+#include "utility.h"
+#include "objects.h"
+#include "openc.h"
+#include "effect.h"
+
+
+inline
+Effect::Effect()
+: owner(0), add(), preconds(), negPreconds(), context(0), base(0), GC()
+{
+  cerr << "In Effect Constr [[[[[[[[[[[]]]]]]]]]]]" << endl;
+}
+
+inline StepId
+Effect::GetOwner() const
+{return owner;}  
+
+inline const AddList& 
+Effect::GetAdd() const
+{return add;}
+
+
+inline List<Openc>
+Effect::PeelGoal(const ReplTable& table) const
+{
+  if (base)
+     return InstantiateOpenc(preconds, owner, context, table);
+  else return InstantiateOpenc(preconds, owner, context);
+}
+
+inline List<Openc>
+Effect::PeelNegGoal(const ReplTable& table) const
+{
+  if (base)
+     return InstantiateOpenc(negPreconds, owner, context, table);
+  else return InstantiateOpenc(negPreconds, owner, context);
+}
+
+inline bool
+Effect::IsConditional() const
+{return preconds.Valid();}
+
+
+inline bool
+Effect::IsQuantified() const
+{return base;}
+
+
+inline Context
+Effect::GetBase() const
+{return base;}
+
+
+// now there is only 1 effect in effect list because
+// there is no separation of effects necessary;
+// later this needs to be changed;  in particular,
+// you cannot just pass the whole List<Node> into
+// the effect constructor;  you need to iterate
+// thru l to find 'when' things
+inline List<Effect>
+InstantiateEffect(const List<Node>& l, StepId owner, Context context)
+{
+  List<Effect> ret;
+
+  ITERATE(effelem, l, next, Node);
+  DOLIST (effelem, next)
+    ret += new Effect(*effelem, owner, context);
+  return ret;
+}
+
+inline
+Effect::Effect(const Node& tmpl,
+	       StepId own,
+	       Context ctx)
+: owner(own),
+  add(),
+  preconds(tmpl.GetConditions()),
+  negPreconds(tmpl.GetNegConditions()),
+  context(ctx),
+  base(0),
+  GC()
+{
+  base = tmpl.GetBase();
+
+  ITERATE (node, tmpl.GetList(), next, Node);
+  DOLIST (node, next) 
+     add += Term(*node, ctx);
+}
+

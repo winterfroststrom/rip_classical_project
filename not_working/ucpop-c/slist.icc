@@ -1,0 +1,275 @@
+// SList.icc:   definitions
+// For debugging,  the code are not d
+
+template <class Type>
+inline int
+SList<Type>::GetSize() const
+{return count;}
+
+
+template <class Type>
+inline bool
+SList<Type>::Empty() const 
+{return count==0;}
+
+
+template <class Type>
+inline void 
+SList<Type>::FreeUp()
+{head=tail=NULL;}// later add SListnodes to free SList
+
+
+template <class Type>
+inline void 
+SList<Type>::operator+=(const SList<Type> &l) 
+{Append(l);}
+
+
+template <class Type>
+inline void 
+SList<Type>::operator+=(Type itm) 
+{Append(itm);}
+
+
+template <class Type>
+inline SList<Type>
+SList<Type>::operator-(Type itm) const
+{
+  SList<Type> tmp;
+  for(SListNode<Type>*c=head;c;c=c->next) 
+     if (c->item!=itm) tmp+=c->item;
+  return tmp;
+}
+
+
+template <class Type>
+inline SList<Type>
+operator+(Type itm, const SList<Type> &l)
+{
+  SList<Type> tmp(*this); 
+  tmp.Prepend(itm);
+  return tmp;
+}
+
+
+template <class Type>
+inline const SList<Type>&
+SList<Type>::operator=(const SList<Type>& l)
+{
+  ASSERT(this!=&l);
+  head=l.head;
+  tail=l.tail;
+  count=l.count;
+  return *this;
+}
+
+
+// Please Note:  This is counter intuitive (prepends).
+// This is done because I cannot get the friend to work.
+// This will stay as is until a solution comes up
+
+template <class Type>
+inline SList<Type>
+SList<Type>::operator+(Type itm) const
+{
+  SList<Type> tmp(*this); 
+  tmp.Prepend(itm);
+  return tmp;
+}
+
+// // do a completely nondestructive copy
+// {
+//   SList<Type>& tmp=*new SList<Type>;
+//   tmp.Copy(*this);
+//   tmp.Append(itm);
+//   return tmp;
+// }
+
+
+//member
+template <class Type>
+inline bool
+SList<Type>::operator==(Type itm) const
+{
+  for(SListNode<Type>* c=head;c;c=c->next) 
+     if (c->item==itm) return TRUE;
+  return FALSE;
+}
+
+
+template <class Type>
+inline bool
+SList<Type>::operator!=(Type itm) const
+{
+  for( SListNode<Type>*c=head;c;c=c->next) 
+     if (c->item==itm) return FALSE;
+  return TRUE;
+}
+
+
+// completely copy stuff; may be point for opt
+template <class Type>
+inline SList<Type>
+SList<Type>::operator+(const SList<Type> &l) const
+{
+  SList<Type> tmp;
+  tmp.Copy(*this);
+  tmp.Append(l);
+  return tmp;
+}
+
+
+// user should always pass DISTINCT objects (separate mem locations)
+// i.e.  this is call by reference
+ template <class Type>
+inline void
+SList<Type>::Append(Type item)
+{				 // does not append NULL items
+  if (Empty()) head=tail=new SListNode<Type>(item);
+  else tail=tail->next=new SListNode<Type>(item);
+  count++;
+}
+
+
+template <class Type>
+inline void
+SList<Type>::Prepend(Type item)
+{
+    if (Empty()) head=tail=new SListNode<Type>(item);
+    else head=new SListNode<Type>(item, head);
+    count++;
+}
+
+
+template <class Type>
+inline void
+SList<Type>::Append(const SList<Type> &l)
+{
+  SListNode<Type>* c=l.head;
+  if (l.head) Append(c->item);
+  while (c!=l.tail) {
+    c=c->next;
+    Append(c->item);
+  }
+}
+
+
+template <class Type>
+inline void
+SList<Type>::Nconc(SList<Type> &l)
+{
+  if (head) {
+    tail->next=l.head;
+    tail=l.tail;
+  } else {
+    head=l.head;
+    tail=l.tail;
+  }
+}
+
+
+// Will never destroy arg l, but will destroy itself 
+template <class Type>
+inline void
+SList<Type>::Prepend(const SList<Type> &l)
+{
+  SListNode<Type>* newhead;
+  SListNode<Type>* c=l.head;
+  
+  if (c) newhead=new SListNode<Type> (c->item);
+  SListNode<Type>* newc=newhead;
+  c=c->next;
+
+  while (c) {
+    newc->next=new SListNode<Type> (c->item);
+    newc=newc->next;
+    c=c->next;
+  }
+
+  newc->next=head;
+  head=newhead;
+}
+
+
+// template <class Type>
+// inline void
+// SList<Type>::Mapcar(void (*funcall) (Type& thing))
+// {
+//   SListNode<Type>* cursor=head;
+//   while (cursor) {
+//     funcall(*cursor->item);
+//     cursor=cursor->next;
+//   }
+// }
+
+
+template <class Type>
+inline Type
+SList<Type>::Pop()
+{
+  ASSERT (!Empty());		 // for debugging
+  Type cacheval=head->item;
+  SListNode<Type>* tmp=head;
+  head=head->next;
+  delete tmp;
+  count--;
+  return cacheval;
+}
+
+// A macro for printing
+// the above doesn\'t work because type of item is not known
+// only used for debugging (this only works for int I think)
+
+// #define Print(type, SList) { SList.Reset();\
+// 			    cout << "<";\
+// 			    while (SList.NotAtEnd()){\
+// 			      cout << (type)++SList << ",";\
+// 			    }\
+// 			    cout << ">\n";\
+// 			  }\
+					       
+
+
+template <class Type>
+inline ostream& 
+operator<< (ostream& os, const SList<Type>& ls)
+{
+  SListIterator<Type> iterator(ls);
+  Type *t;
+
+  os << "( ";
+  while (t=ls()) os << t << " ";
+  os << ")";
+
+  return os;
+}
+
+
+// SList iteration primitives
+
+template <class Type>
+inline void
+SListIterator<Type>::Reset()
+{cursor=l->head;}
+
+
+template <class Type>
+inline void
+SListIterator<Type>::operator=(const SList<Type>& ls)
+{l=&ls;cursor=ls.head;}
+
+
+template <class Type>
+inline Type
+SListIterator<Type>::operator() (void)
+{
+  Type ret;
+  if (cursor) {
+    ret=cursor->item;		 // this is just for checking
+    cursor=cursor->next;
+    ASSERT(ret);		 // for my proj,  I should not have NULL
+    return ret;
+  } else return sentinel;  		 // I must be at the endn 
+}
+
+

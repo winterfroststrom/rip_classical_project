@@ -1,0 +1,132 @@
+// inline functions
+
+template<class Type>
+const int
+Array<Type>::GetCount() const
+{return count;}
+
+// recycle
+template<class Type>
+int
+Array<Type>::Reset()
+{int tmp=count;count=0;return tmp;}
+
+
+template<class Type>
+Type*
+Array<Type>::MakeArray() const
+{
+  s=new Type[count];
+  for (int i=0;i<count;i++) s[i]=set[i];
+  return s;
+}
+     
+// returns index, -1 if not found
+template<class Type>
+int
+Array<Type>::Lookup(Type thing) 
+{
+  for(int i=0;i<count;i++) 
+     if(set[i]==thing) return i;
+  return -1;
+}
+
+
+template<class Type>
+bool
+Array<Type>::operator==(Type thing)
+{return Lookup(thing)>=0;}
+
+
+template<class Type>
+bool
+Array<Type>::operator!=(Type thing)
+{return Lookup(thing)<0;}
+
+/* Notice that it is always returned a +ve int (count on success);
+ * It never returns 0 (only when failed)
+ */
+
+
+template<class Type>
+int
+Array<Type>::Add(int thing) 
+{
+  ASSERT(count<size);
+  set[count]=thing;
+  count++;
+  return count;
+}
+
+
+template<class Type>
+Type
+Array<Type>operator[](int index)
+{ASSERT(index >=0 && index<count); return set[index];}
+
+
+template<class Type>
+int
+Array<Type>::operator+=(int thing) 
+{return Add(thing);}
+
+
+// int
+// Table::Lookup(int key)
+// {
+//   if (keys)
+//      for(int i=0;i<size;i++) 
+// 	if (keys[i]==key) return things[i];
+//   return key;			 // return the key itself if not found (?!)
+// }
+// 
+// int 
+// Table::operator==(int key) 
+// {return Lookup(key);}
+// 
+// // lowest level call to Add a pair
+// // adds the pair if the key is not in table; modify things with item if
+// // key is already in keys.
+// 
+// void 
+// Table::Add(int key,int item) 
+// {
+//   ASSERT(count<size);
+//   // chekc if duplicates exists
+//   for (int i=0;i<count;i++) if (keys[i]==key) things[i]=item;
+//   keys[count]=key;
+//   things[count]=item;count++;
+// }
+// 
+// n
+// // make a table WITH THE SAME KEYS
+// inline
+// Table::Table(const Table &t)
+// {
+//   size=t.size;
+//   count=0;			 // this time reinitialize (for my use :-)  )
+//   keys=new int[size];
+//   things=new int[size];
+//   for(int i=0;i<size;i++) keys[i]=t.keys[i];
+//   for(i=0;i<size;i++) things[i]=t.things[i];
+//   // only copy the keys! (?!???)
+// }
+//   
+// 
+// // the destructive flag control whether the function should use the argument to
+// // store the new int*  (destructive default to FALSE)
+// int*
+// Table::Subst(int *t, int sz, int destructive)
+// {
+//   int *ret;
+//   if (t) ret=(destructive) ? t : new int[sz]; 
+//   else return NULL;
+//   for(int i=0;i<sz;i++) ret[i]=Lookup(t[i]);
+//   // because Lookup ret the key if not found
+//   return ret;
+// }
+//      
+// const int
+// Table::GetSize()
+// {return size;}
+// 

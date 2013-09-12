@@ -1,0 +1,121 @@
+// inline symtab functions
+
+
+inline void
+StrTable::grow()
+{
+  char** old=array;
+  array=new char*[trueSize*=2];
+  for (int i=0;i<size;i++)
+     array[i]=old[i];
+  delete [] old;
+}
+
+
+inline Sym
+StrTable::Lookup(char* s)
+{
+  for (int i=0;i<size;i++)
+     if (strcmp(s,array[i])==0) return i+1;
+  return 0;
+}
+
+     
+
+inline Sym
+StrTable::Add(char* s)
+{
+  if (size>trueSize) grow();
+  array[size]=new char[strlen(s)+1];
+  strcpy(array[size], s);
+  size++;
+  return size;
+}
+
+
+// create if non
+inline Sym
+StrTable::Find(char* s)
+{
+  Sym ret=Lookup(s);
+  if (ret!=0) return ret;
+  else return Add(s);
+}
+
+
+inline Context
+StrTable::Reset()
+{
+  for (int i=0;i<size;i++) delete [] array[i];
+  Context ret=size;
+  size=0;
+  return ret;
+}
+ 
+
+inline char*
+StrTable::Fetch(Sym s) const
+{
+//  ASSERT(s);
+  Sym fetchVal=s-1;
+  return (fetchVal<size) ? array[fetchVal] : 0;
+}
+
+  
+inline Context
+SymTab::NewScope()
+{return localTable.Reset();}
+
+
+inline Sym 
+SymTab::AddOp(char* s)
+{return opTable.Add(s);}
+
+
+inline Sym
+SymTab::AddVar(char* s)
+{return localTable.Add(s);}
+
+
+inline Sym
+SymTab::FindVar(char* s)
+{return localTable.Find(s);}
+
+
+inline Sym
+SymTab::LookupVar(char* s)
+{return localTable.Lookup(s);}
+
+     
+inline Sym
+SymTab::FindConst(char* s)
+{return -(constTable.Find(s));}
+
+
+inline Sym 
+SymTab::FindPred(char* s)
+{return predTable.Find(s);}
+
+
+inline String
+SymTab::FetchSymName(Sym symbol) const
+// bad style,  assume implementation
+{
+  return (IsConst(symbol)) ?
+     String(constTable.Fetch(-symbol)): String(localTable.Fetch(symbol));
+}
+
+
+inline String
+SymTab::FetchPredicate(Pred pred) const
+// bad style,  assume implementation
+{
+  return (isNegation(pred))?
+     String("not-")+(predTable.Fetch(-pred)) : String(predTable.Fetch(pred));
+}
+
+
+inline String
+SymTab::FetchOperator(Sym opname) const
+// bad style,  assume implementation
+{return String(opTable.Fetch(opname));}

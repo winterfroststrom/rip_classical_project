@@ -1,0 +1,36 @@
+// inline functions
+#include "openc.h"
+#include "utility.h"
+#include "objects.h"
+#include "logic.h"
+
+inline StepId
+Openc::GetOwner() const
+{return owner;}  
+
+
+inline const List<Openc>& 
+Openc::GetList() const
+{
+  ASSERT(GetType()!=Ordinary);
+  return *((List<Openc>*)slot());
+}
+
+
+inline
+Openc::Openc(Term& t, StepId own, Context context)
+: Term(t, context), owner(own), GC() {}
+
+inline
+// template instantiation
+Openc::Openc(const Openc& oc, StepId own, Context context)
+: Term(oc, context), owner(own), GC() {}
+
+inline
+Openc::Openc(const List<Openc>& l, LogicPrimitive prim)
+: Term((int)prim, 0, (Sym*)new List<Openc>(l)), owner(0), GC() {}
+
+inline
+Openc::Openc(Term& t, StepId own, Context context, const ReplTable& table)
+: Term(t, table, context), owner(own), GC() {}
+

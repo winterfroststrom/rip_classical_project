@@ -1,0 +1,390 @@
+\input texinfo   @c -*-texinfo-*-
+@comment %**start of header (This is for running Texinfo on a region.)
+@setfilename ucpop.texinfo
+@settitle UCPOP-C++ User's Manual
+@setchapternewpage odd
+@comment %**end of header (This is for running Texinfo on a region.)
+  
+@ifinfo
+   This file documents the UCPOP domain-independent planner program
+written in C++ version.
+
+   Copyright @copyright{} 1993 Chung T. Kwok
+
+   Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+@end ifinfo
+
+@node Top, Introduction, (dir), (dir)
+@comment  node-name,  next,  previous,  up
+   This manual documents the UCPOP domain-independent planner,  C++
+version.  The manual is divided into the following chapters.
+
+* Menu:
+
+* Abstract::                 What is this manual about?
+* Introduction::             What is UCPOP and UCPOP-C++?
+* Installing UCPOP-C++::     How to install UCPOP-C++ on Unix systems.
+* Invoking UCPOP-C++::	     How to invoke UCPOP-C++ on Unix shells.
+* User input::               User input formats.
+* Technical Review::         General overview of the program structure.
+* Evalutaion::               Program performance issues.
+* Bugs::                     Known bugs.
+* Suggestions::              Any suggestions and questions are welcomed.
+* Future plans::             A to-do list.
+* References::               Related documents.
+* Epilogue::                 My own comments.
+* Credits::                  Acknowledgements and thanks.
+
+Indices:
+
+* Key Index::                Menus of command keys and their references.
+* Command Index::            Menus of commands and their references.
+* Variable Index::           Menus of variables and their references.
+
+@node Abstract, Introduction, , Top
+@comment  node-name,  next,  previous,  up
+@chapter Abstract
+
+This manual has 2 purposes.
+@enumerate
+@item To provide a user guide the the program UCPOP, (@pxref{Invoking UCPOP-C++})
+@item To describe, and evaluate,  the UCPOP-C++ implementation of the UCPOP algorithm, @pxref{Technical Review}
+@refill
+@end enumerate
+
+@menu
+* Using this manual::         This manual can be printed or read on line.
+@end menu
+
+@node Using this manual, , ,Abstract
+@comment  node-name,  next,  previous,  up
+
+@section Using this manual
+
+   This document is in texinfo form.  This means that this manual can
+be printed in the `.dvi' format,  or it can be read online using the
+"info" program or inside emacs.
+
+[xref to the node that does this]
+
+@node Introduction, Installing UCPOP-C++, Abstract, Top
+@comment  node-name,  next,  previous,  up
+@chapter Introduction
+
+        This chapter gives a very brief description of UCPOP and
+UCPOP-C++.  For details on the UCPOP algorithm,  @pxref{References}
+
+@menu
+* UCPOP::                    The domain-independent planner.
+* UCPOP-C++::                The C++ implementation of UCPOP.
+@end menu
+
+@node UCPOP,  UCPOP-C++, , Introduction
+@comment  node-name,  next,  previous,  up
+@section UCPOP
+
+        UCPOP is a domain-independent @var{partial-ordering planner}
+with expressive actions, developed by professor Daniel S. Weld.  It
+allows users to specify a domain, which contains a set of @var{actions}.
+These actions are written in an expressive language that resembles very
+closely to @var{first order predicate logic}.  Each action consist of
+a set of @var{preconditions} and a set of @var{effects}.  Preconditions
+are first order predicate calculus statements that denotes the conditions
+in which the domain was in before the action is taken,  and effects 
+denotes the conditions after.
+
+        The objective of the planning process is to produce a
+(partially-) ordered sequence of actions that will solve a
+@var{problem}, which in essence consists of a set of effects called
+@var{initial conditions},  and a set of @var{goals} to be achieved.  The
+ordered sequence of events will bring the state of the domain from the
+initial conditions to the goal state.
+
+        For a complete description of the UCPOP algorithm,
+@pxref{References}
+
+@node UCPOP-C++, , UCPOP, Introduction 
+@comment node-name, next, previous, up
+@section UCPOP-C++
+
+        UCPOP-C++ is an implementation of UCPOP in the C++ language.
+The goal of the project is to explore the possible speed gains by using
+C++.  
+
+        UCPOP was originally implemented in Common Lisp language.  This
+version of UCPOP-C++ attempt to do a reimplementation of the Lisp
+version as written in 1992.
+
+        In essence UCPOP-C++ employs many ideas from the Common Lisp
+version.  However there are also many differences implementation-wise.
+@xref{Technical Review} for details of such differences.
+
+        For an evalution of results obtained from this implementation,
+@pxref{Evalutation}
+
+
+@node Installing UCPOP-C++, , Invoking UCPOP-C++, Top
+@comment  node-name,  next,  previous,  up
+@chapter Installing UCPOP-C++
+
+        Already installed :-)
+
+@node Invoking UCPOP-C++, Installing UCPOP-C++, User Input, Top
+@comment  node-name,  next,  previous,  up
+@chapter Invoking UCPOP-C++
+
+        UCPOP-C++ can be invoked in shell with the following syntax:
+
+@example 
+ucpop @var{problem} @var{domain-file} [@var{search-limit}]
+@end example
+
+@table @samp
+@item problem
+This is the name of the problem to be solved.
+@item domain-file
+This is a file containing all the definitions of operators in a domain,
+plus problems to be solved in that domain.
+@item search-limit
+You can specify the extent of search by providing this argument.  UCPOP
+will stop searching when it has generate more plans than this limit.
+@end table
+
+        In order for UCPOP to look for the correct domain operators and
+problems,  the current limitation is you have to put the definitions of
+problems and operator in one single file.  This restriction will be
+released in the future versions.  More @var{flags} will also be added later.
+
+
+@node User Input,  Technical Review,  Invoking UCPOP-C++, Top
+@comment  node-name,  next,  previous,  up
+@chapter User Input
+        
+        This chapter describes how to write a UCPOP input file.
+
+        You can put the definitions in a file (you can use a @file{.u}
+suffix as file name,  that's the convention I follow but not really
+necessary).  Please note that current only one file per domain is
+supported,  so you have to put the definitions of problems and actions
+in one single file.
+
+        The input syntax is described in the following rules.  This
+grammar is LALR(1) parsable but tweaked such that it is so.  It may
+be slightly different from the grammar mentioned in the references.
+Please correct me if I'm wrong.
+
+        The start symbol is ucpopInput. All colons (":") in logical operators
+(and, or, not, forall,  exists) are optional,  and input are case
+insensitive, as in Lisp.
+
+@table @var
+@item ucpopInput ::= 
+@var{operator+} @var{problem+}
+@item problem    ::= 
+(define (problem @var{constant}) @var{initials} @var{goals}) 
+@item initials   ::= 
+:init @var{effect}
+@item goals      ::= 
+:goals @var{GD}
+@item operator   ::= 
+(define (operator @var{constant}) @var{params} @var{preconds} @var{effectspec})
+@refill
+@item params     ::=
+[:parameters(@var{parameter}*)]
+@item parameter  ::= 
+@var{variable} | @var{typed-variable}
+@item typed-variable ::= 
+(@var{constant} @var{variable})
+@item effectspec ::= 
+:effect @var{effect}
+@item preconds   ::=
+[:precondition @var{GD}]
+@item argument   ::= 
+@var{constant} | @var{variable}
+@item term       ::= 
+(@var{constant} @var{argument}*)
+@item GD         ::= 
+@var{term} | (:and @var{GD}+) | (:or @var{GD}+) | (:not @var{GD}) |
+(:forall (@var{typed-variable}+) @var{GD}) | (:exists (@var{typed-variable}+) @var{GD})
+@refill
+@item effect     ::=
+@var{peffect} | @var{ceffect} | (:and @var{effect}+) | (:forall
+(@var{typed-variable}+) @var{ueffects})
+@item ueffect    ::= 
+@var{ceffect} | @var{peffect}
+@item ueffects   ::= 
+@var{ueffect} | (:and @var{ueffects} @var{ueffect})
+@item ceffect    ::= 
+(:when @var{GD} @var{peffects})
+@item peffects   ::=
+(:and @var{peffects}) | @var{peffects} @var{peffect} | @var{peffect}
+@item peffect    ::=
+@var{term} | (:not @var{term})
+@end table
+
+        Some examples are in the @file{domains} directory in the
+distribution.  
+
+        I planned to write a script that converts lisp code to this
+format (since lisp has some syntatical differences,  like the use of
+"'",  is not included in the above description.
+
+@node Technical Review, Evalutaion, User Input, Top
+@comment  node-name,  next,  previous,  up
+@chapter Technical Review
+
+        [This may get too long so I delay it]
+
+@node Evaluation,  Bugs,  Technical Review, Top
+@comment  node-name,  next,  previous,  up
+@chapter Evalutaion
+
+        This chapter attempts to describe some differences in
+performance of UCPOP-C++ and Lisp-1992 version, and explain these
+differences,  in terms of implementation strategies.
+
+        [I plan to do some benchmarking later...]
+
+@enumerate
+@item Speed
+UCPOP-C++ generates about less than 1000 plans per second (I want to emphasize
+this can get faster) on a DEC-5000 machine (wolf).  The same machine
+generates 127 plans per second.
+
+@item Algorithm
+UCPOP-C++ uses almost the same algorithm as the Lisp version,  but it
+doesn't do separation when a possible threat is encountered.  Instead,
+it'll resolve the threat only when it's not a flase threat,  that is,
+when the variables definitely codesginate.  This reduces the branching
+factor.
+
+@item Search control
+UCPOP-C++ uses a rather chaotic way of appending and prepending open
+condition, as a result,  some domains can perform extremely good while
+some will become very poor,  as compared with the Lisp version.
+
+@item Runtime overhead
+UCPOP-C++ consciously reduces the runtime overhead and let everything
+happen during parsing phase if possible.  The user defined operators are
+reformed into canonical form before any planning begins.  With @var{static
+universe} assumption,  UCPOP-C++ pre-expand any universal preconditions
+and goals.  
+
+@item Data Structures
+UCPOP-C++ uses a hybrid of data structures,  trying to maximize benefits
+from using each;  @pxref{Technical Review}
+@end enumerate
+
+        Sorry for the lack of data,  they'll be added soon.
+
+@node Bugs
+@comment  node-name,  next,  previous,  up
+@chapter Bugs and currently deficient features
+      
+        C++ is a difficult language to write high level programs like
+UCPOP;  bugs are unaviodable.  I have spent a lot of time in this
+project,  but even so, UCPOP-C++ is not really complete.  Also I don't
+have time to test fully each domain in domains.lisp;  I hope everything
+works out :-(
+
+Currently deficient features:  (they'll be filled in very soon)
+@itemize @bullet
+@item Existential quantification
+This requires some scoping hacks,  and cannot be hacked within very
+limited time (since I'm leaving town).
+@item Nested quantification
+This also relates to scoping.  Notice they are half implemented,  I have
+all the stubs for them,  but I only need another 2 or 3 days to get them
+working.  Too bad.
+@item Search control
+I'm not very satisfied with my arbitrary placement of things just to
+make them fast (e.g. using cons-ing all the time with List class).
+@item Garbage Collection
+UCPOP-C++ almost deletes everything it allocates,  but I believe there
+are some minor leaks.  Taking these out are very difficult.  Blame C++ :-).
+@item Half-way decent parse error reporter
+Currently if it sees syntax error,  it just say "syntax error at line",
+no more information are given.  And the line number reporting isn't full
+tested either.
+@item Ordering results:
+I didn't have time to fully decode the Lisp code for topsort,  sorry.
+I know this is kind of outrageous :-).
+@end itemize
+
+I haven't tested the following:
+@itemize @bullet
+@item Quantification with more than 2 variables
+@item Nesting universal quantification may actually work,  but I don't know
+@item Reporting line number for parse errors.
+@end itemize
+
+@node Suggestions
+@comment  node-name,  next,  previous,  up
+@chapter Suggestions
+        
+        Send'em to me!!!
+
+@node Future plans
+@comment  node-name,  next,  previous,  up
+@chapter Future plans
+
+        Lots of things to add,  including search control,  motif
+interface,  more recent UCPOP enhancements.... the possibilities are
+endless....
+
+@node References
+@comment  node-name,  next,  previous,  up
+@chapter References
+        
+        [This is incomplete...]
+
+@enumerate
+@item UCPOP: A Sound, Complete, Partial Order Planner for ADL,  Dan S.
+Weld and J.Scott Penberthy,  1992.
+@item Unpublished technical report (??) UCPOP: An Efficient Planner for
+Expressive Actions.
+@item UCPOP User's Manual (version 1.00)
+@end enumerate
+
+@node Epilogue
+@comment  node-name,  next,  previous,  up
+@chapter Epilogue
+
+        I've spent a lot of time the last year implementing UCPOP-C++.
+I orginally feel that rewritting code isn't a difficult task;  however
+it turns out this is not the case for UCPOP-C++.  C++ is a difficult
+language to even get things right in the first place.  Unlike Lisp,
+many data structures have to be built by hand.  In fact,  I have wrote
+about ten times as much code as the Lisp version.
+
+        Debugging is also a very tedious job for C++.  UCPOP itself
+itsn't easy to debug either.  
+
+        Also I always tried to think too much about speed.  Perhaps I
+should have get it right first....
+
+        [I have lots and lots and lots of comments,  but I'm leaving in
+30 minutes!!]
+
+@node Credits
+@comment  node-name,  next,  previous,  up
+@chapter Acknowledgement and thanks
+
+        I'd really like to thank professor Weld for his constant support
+and incredible patience.  I have often delay and delay,  but he always
+bear with me,  I really appreciate this.  Also he always answer my
+questions in detail.  As a result I didn't get into more trouble because
+I didn't understand the UCPOP algorithm.
+
+        I also like to thanks Tony Barrett for answering many of my
+questions.
+
+@contents
+@bye
+
+
+
+
+

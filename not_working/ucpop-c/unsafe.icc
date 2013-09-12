@@ -1,0 +1,15 @@
+
+inline const Effect& 
+Unsafe::GetCEffect() const
+{return clobberEffect;}
+
+inline const Term& 
+Unsafe::GetCCondition() const
+{return clobberCondition;}
+
+
+inline
+Unsafe::Unsafe(const Link& l, const Effect& e, const Term& oc)
+: Link(l), clobberEffect(e), clobberCondition(oc) {}
+
+
