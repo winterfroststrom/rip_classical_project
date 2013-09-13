@@ -1,3 +1,4 @@
 http://fai.cs.uni-saarland.de/hoffmann/ff.html
 http://fai.cs.uni-saarland.de/hoffmann/metric-ff.html
 http://ftp.cs.rochester.edu/u/kautz/satplan/blackbox/
+http://www.fast-downward.org/PlannerUsage
