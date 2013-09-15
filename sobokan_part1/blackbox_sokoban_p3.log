@@ -1,0 +1,592 @@
+Begin solver specification
+    -maxint        0   -maxsec 0.000000  chaff
+End solver specification
+Loading domain file: sokoban-domain.pddl
+Loading fact file: sokoban-p3.pddl
+Problem name: sokoban-p3
+Facts loaded.
+time: 1, 133 facts and 3 exclusive pairs.
+time: 2, 138 facts and 31 exclusive pairs.
+time: 3, 140 facts and 46 exclusive pairs.
+time: 4, 142 facts and 63 exclusive pairs.
+time: 5, 143 facts and 71 exclusive pairs.
+time: 6, 145 facts and 92 exclusive pairs.
+time: 7, 147 facts and 119 exclusive pairs.
+time: 8, 152 facts and 211 exclusive pairs.
+time: 9, 154 facts and 250 exclusive pairs.
+time: 10, 159 facts and 363 exclusive pairs.
+time: 11, 160 facts and 376 exclusive pairs.
+time: 12, 161 facts and 362 exclusive pairs.
+time: 13, 162 facts and 367 exclusive pairs.
+time: 14, 163 facts and 365 exclusive pairs.
+time: 15, 165 facts and 403 exclusive pairs.
+time: 16, 167 facts and 441 exclusive pairs.
+time: 17, 169 facts and 490 exclusive pairs.
+Goals reachable at 17 steps but mutually exclusive.
+time: 18, 169 facts and 466 exclusive pairs.
+Goals reachable at 18 steps but mutually exclusive.
+time: 19, 169 facts and 446 exclusive pairs.
+Goals reachable at 19 steps but mutually exclusive.
+time: 20, 169 facts and 430 exclusive pairs.
+Goals reachable at 20 steps but mutually exclusive.
+time: 21, 169 facts and 418 exclusive pairs.
+Goals reachable at 21 steps but mutually exclusive.
+time: 22, 169 facts and 405 exclusive pairs.
+Goals reachable at 22 steps but mutually exclusive.
+time: 23, 169 facts and 395 exclusive pairs.
+Goals reachable at 23 steps but mutually exclusive.
+time: 24, 169 facts and 385 exclusive pairs.
+Goals first reachable in 24 steps.
+8950 nodes created.
+
+####################################################
+goals at time 25:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+** Turning off completeness check **
+Converting graph to wff
+number of action variables = 3484
+number of fluent variables = 2680
+total number variables = 6164
+number clauses = 58100
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+time: 25, 169 facts and 379 exclusive pairs.
+418 new nodes added.
+
+####################################################
+goals at time 26:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 3762
+number of fluent variables = 2869
+total number variables = 6631
+number clauses = 65400
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 25 steps
+time: 26, 169 facts and 376 exclusive pairs.
+418 new nodes added.
+
+####################################################
+goals at time 27:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 3982
+number of fluent variables = 3011
+total number variables = 6993
+number clauses = 71615
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 26 steps
+time: 27, 170 facts and 404 exclusive pairs.
+419 new nodes added.
+
+####################################################
+goals at time 28:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 4228
+number of fluent variables = 3179
+total number variables = 7407
+number clauses = 77903
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 27 steps
+time: 28, 171 facts and 431 exclusive pairs.
+423 new nodes added.
+
+####################################################
+goals at time 29:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 4477
+number of fluent variables = 3349
+total number variables = 7826
+number clauses = 84258
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 28 steps
+time: 29, 171 facts and 427 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 30:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 4731
+number of fluent variables = 3524
+total number variables = 8255
+number clauses = 90690
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 29 steps
+time: 30, 171 facts and 419 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 31:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 4958
+number of fluent variables = 3670
+total number variables = 8628
+number clauses = 97176
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 30 steps
+time: 31, 171 facts and 411 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 32:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 5185
+number of fluent variables = 3816
+total number variables = 9001
+number clauses = 103701
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 31 steps
+time: 32, 171 facts and 400 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 33:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 5412
+number of fluent variables = 3962
+total number variables = 9374
+number clauses = 110262
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 32 steps
+time: 33, 171 facts and 392 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 34:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 5639
+number of fluent variables = 4108
+total number variables = 9747
+number clauses = 116837
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 33 steps
+time: 34, 171 facts and 385 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 35:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 5866
+number of fluent variables = 4254
+total number variables = 10120
+number clauses = 123424
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 34 steps
+time: 35, 171 facts and 382 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 36:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 6127
+number of fluent variables = 4434
+total number variables = 10561
+number clauses = 130108
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 35 steps
+time: 36, 171 facts and 380 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 37:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 6356
+number of fluent variables = 4581
+total number variables = 10937
+number clauses = 136755
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 36 steps
+time: 37, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 38:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 6585
+number of fluent variables = 4728
+total number variables = 11313
+number clauses = 143408
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 37 steps
+time: 38, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 39:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 6814
+number of fluent variables = 4875
+total number variables = 11689
+number clauses = 150071
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 38 steps
+time: 39, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 40:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 7043
+number of fluent variables = 5022
+total number variables = 12065
+number clauses = 156738
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 39 steps
+time: 40, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 41:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 7272
+number of fluent variables = 5169
+total number variables = 12441
+number clauses = 163410
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 40 steps
+time: 41, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 42:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 7501
+number of fluent variables = 5316
+total number variables = 12817
+number clauses = 170084
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 41 steps
+time: 42, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 43:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 7730
+number of fluent variables = 5463
+total number variables = 13193
+number clauses = 176759
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 42 steps
+time: 43, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 44:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 7959
+number of fluent variables = 5610
+total number variables = 13569
+number clauses = 183430
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 43 steps
+time: 44, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 45:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 8188
+number of fluent variables = 5757
+total number variables = 13945
+number clauses = 190100
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 44 steps
+time: 45, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 46:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 8417
+number of fluent variables = 5904
+total number variables = 14321
+number clauses = 196770
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 45 steps
+time: 46, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 47:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 8646
+number of fluent variables = 6051
+total number variables = 14697
+number clauses = 203440
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 46 steps
+time: 47, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 48:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 8875
+number of fluent variables = 6198
+total number variables = 15073
+number clauses = 210110
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 47 steps
+time: 48, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 49:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 9104
+number of fluent variables = 6345
+total number variables = 15449
+number clauses = 216780
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 48 steps
+time: 49, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 50:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 9333
+number of fluent variables = 6492
+total number variables = 15825
+number clauses = 223450
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 49 steps
+time: 50, 171 facts and 379 exclusive pairs.
+424 new nodes added.
+
+####################################################
+goals at time 51:
+  box-at_b17 box-at_b27 box-at_b37 
+
+
+----------------------------------------------------
+Converting graph to wff
+number of action variables = 9562
+number of fluent variables = 6639
+total number variables = 16201
+number clauses = 230120
+Instance unsatisfiable
+Result is Unsat
+Iteration was 0
+
+----------------------------------------------------
+Can't solve in 50 steps
+
+----------------------------------------------------
+NO SOLUTION
+Problem not solvable: no solution exists in alloted time
+    Search halted after 50 steps
+    0 entries in hash table and 0 hits
+    avg set size 0
+----------------------------------------------------
+
+####################################################
+Total elapsed time:   13.89 seconds
+Time in milliseconds: 13886
+
+####################################################

@@ -1,0 +1,39 @@
+Begin solver specification
+    -maxint        0   -maxsec 0.000000  chaff
+End solver specification
+Loading domain file: sokoban-domain.pddl
+Loading fact file: sokoban-p2.pddl
+Problem name: sokoban-p2
+Facts loaded.
+time: 1, 66 facts and 1 exclusive pairs.
+time: 2, 67 facts and 3 exclusive pairs.
+time: 3, 71 facts and 24 exclusive pairs.
+time: 4, 74 facts and 47 exclusive pairs.
+time: 5, 77 facts and 74 exclusive pairs.
+time: 6, 79 facts and 89 exclusive pairs.
+time: 7, 81 facts and 101 exclusive pairs.
+time: 8, 83 facts and 118 exclusive pairs.
+time: 9, 84 facts and 124 exclusive pairs.
+time: 10, 86 facts and 149 exclusive pairs.
+time: 11, 86 facts and 138 exclusive pairs.
+time: 12, 86 facts and 129 exclusive pairs.
+time: 13, 86 facts and 124 exclusive pairs.
+time: 14, 86 facts and 120 exclusive pairs.
+time: 15, 86 facts and 118 exclusive pairs.
+time: 16, 86 facts and 117 exclusive pairs.
+time: 17, 86 facts and 116 exclusive pairs.
+time: 18, 86 facts and 116 exclusive pairs.
+3536 nodes created.
+
+----------------------------------------------------
+NO SOLUTION
+Problem not solvable: can't even reach non-mutex goals
+    Search halted after 0 steps
+    0 entries in hash table and 0 hits
+    avg set size 0
+----------------------------------------------------
+
+####################################################
+Total elapsed time:   0.03 seconds
+Time in milliseconds: 33
+

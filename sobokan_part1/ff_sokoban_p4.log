@@ -1,0 +1,122 @@
+ff: parsing domain file
+domain 'SOKOBAN-DOMAIN' defined
+ ... done.
+ff: parsing problem file
+problem 'SOKOBAN-P4' defined
+ ... done.
+
+
+
+Cueing down from goal distance:   16 into depth [1]
+                                  15            [1]
+                                  14            [1]
+                                   9            [1]
+                                   8            [1]
+                                   6            [1]
+                                   5            [1]
+
+Enforced Hill-climbing failed !
+switching to Best-first Search now.
+
+advancing to distance :   16
+                          15
+                          11
+                          10
+                           9
+                           8
+                           6
+                           3
+                           2
+                           1
+                           0
+
+ff: found legal plan as follows
+
+step    0: MOVE-PLAYER B35 B34
+        1: MOVE-PLAYER B34 B33
+        2: MOVE-PLAYER B33 B43
+        3: MOVE-PLAYER B43 B42
+        4: MOVE-PLAYER B42 B41
+        5: MOVE-PLAYER B41 B31
+        6: PUSH-BOX B31 B32 B33
+        7: PUSH-BOX B32 B33 B34
+        8: MOVE-PLAYER B33 B43
+        9: MOVE-PLAYER B43 B53
+       10: MOVE-PLAYER B53 B63
+       11: MOVE-PLAYER B63 B62
+       12: PUSH-BOX B62 B52 B42
+       13: MOVE-PLAYER B52 B53
+       14: MOVE-PLAYER B53 B43
+       15: MOVE-PLAYER B43 B33
+       16: MOVE-PLAYER B33 B32
+       17: MOVE-PLAYER B32 B31
+       18: MOVE-PLAYER B31 B41
+       19: PUSH-BOX B41 B42 B43
+       20: MOVE-PLAYER B42 B52
+       21: MOVE-PLAYER B52 B53
+       22: MOVE-PLAYER B53 B54
+       23: MOVE-PLAYER B54 B44
+       24: MOVE-PLAYER B44 B45
+       25: MOVE-PLAYER B45 B35
+       26: PUSH-BOX B35 B34 B33
+       27: PUSH-BOX B34 B33 B32
+       28: MOVE-PLAYER B33 B34
+       29: MOVE-PLAYER B34 B44
+       30: MOVE-PLAYER B44 B54
+       31: MOVE-PLAYER B54 B53
+       32: MOVE-PLAYER B53 B52
+       33: MOVE-PLAYER B52 B42
+       34: PUSH-BOX B42 B43 B44
+       35: MOVE-PLAYER B43 B33
+       36: MOVE-PLAYER B33 B34
+       37: MOVE-PLAYER B34 B24
+       38: MOVE-PLAYER B24 B14
+       39: MOVE-PLAYER B14 B13
+       40: PUSH-BOX B13 B23 B33
+       41: PUSH-BOX B23 B33 B43
+       42: PUSH-BOX B33 B43 B53
+       43: MOVE-PLAYER B43 B42
+       44: MOVE-PLAYER B42 B41
+       45: MOVE-PLAYER B41 B31
+       46: PUSH-BOX B31 B32 B33
+       47: MOVE-PLAYER B32 B42
+       48: MOVE-PLAYER B42 B43
+       49: PUSH-BOX B43 B33 B23
+       50: MOVE-PLAYER B33 B34
+       51: MOVE-PLAYER B34 B35
+       52: MOVE-PLAYER B35 B45
+       53: PUSH-BOX B45 B44 B43
+       54: MOVE-PLAYER B44 B54
+       55: PUSH-BOX B54 B53 B52
+       56: MOVE-PLAYER B53 B63
+       57: MOVE-PLAYER B63 B62
+       58: PUSH-BOX B62 B52 B42
+       59: MOVE-PLAYER B52 B53
+       60: MOVE-PLAYER B53 B54
+       61: MOVE-PLAYER B54 B44
+       62: MOVE-PLAYER B44 B34
+       63: MOVE-PLAYER B34 B33
+       64: MOVE-PLAYER B33 B32
+       65: PUSH-BOX B32 B42 B52
+       66: PUSH-BOX B42 B43 B44
+       67: MOVE-PLAYER B43 B53
+       68: MOVE-PLAYER B53 B63
+       69: MOVE-PLAYER B63 B62
+       70: PUSH-BOX B62 B52 B42
+       71: MOVE-PLAYER B52 B53
+       72: MOVE-PLAYER B53 B43
+       73: MOVE-PLAYER B43 B33
+       74: MOVE-PLAYER B33 B34
+       75: MOVE-PLAYER B34 B24
+       76: MOVE-PLAYER B24 B14
+       77: MOVE-PLAYER B14 B13
+       78: PUSH-BOX B13 B23 B33
+       79: PUSH-BOX B23 B33 B43
+     
+
+time spent:    0.00 seconds instantiating 86 easy, 0 hard action templates
+               0.00 seconds reachability analysis, yielding 57 facts and 86 actions
+               0.00 seconds creating final representation with 57 relevant facts
+               0.00 seconds building connectivity graph
+               0.04 seconds searching, evaluating 8392 states, to a max depth of 1
+               0.04 seconds total time

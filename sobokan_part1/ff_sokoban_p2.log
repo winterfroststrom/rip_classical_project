@@ -1,0 +1,10 @@
+ff: parsing domain file
+domain 'SOKOBAN-DOMAIN' defined
+ ... done.
+ff: parsing problem file
+problem 'SOKOBAN-P2' defined
+ ... done.
+
+
+ff: goal can be simplified to FALSE. No plan will solve it
+
