@@ -1,0 +1,5 @@
+(define (problem sokoban-1)
+  (:domain sokoban-domain)
+  (:objects b11 b12 b22 b31 b32 b33 b34 b41 b42 b43 b44 b51 b52)
+  (:init (player_at b22) (box_at b43) (adj b11 b12) (adj b12 b11) (adj b12 b22) (adj b22 b12) (adj b31 b32) (adj b32 b31) (adj b22 b32) (adj b32 b22) (adj b32 b33) (adj b33 b32) (adj b33 b34) (adj b34 b33) (adj b31 b41) (adj b41 b31) (adj b41 b42) (adj b42 b41) (adj b32 b42) (adj b42 b32) (adj b42 b43) (adj b43 b42) (adj b33 b43) (adj b43 b33) (adj b43 b44) (adj b44 b43) (adj b34 b44) (adj b44 b34) (adj b51 b52) (adj b52 b51) (adj b41 b51) (adj b51 b41) (adj b42 b52) (adj b52 b42) (pushable b12 b32) (pushable b32 b12) (pushable b22 b42) (pushable b42 b22) (pushable b32 b52) (pushable b52 b32) (pushable b31 b51) (pushable b51 b31) (pushable b31 b33) (pushable b33 b31) (pushable b32 b34) (pushable b34 b32) (pushable b41 b43) (pushable b43 b41) (pushable b42 b44) (pushable b44 b42))
+  (:goal (box_at b12)))
