@@ -3,7 +3,7 @@ Begin solver specification
 End solver specification
 Loading domain file: sokoban-domain.pddl
 Loading fact file: sokoban-p1.pddl
-Problem name: sokoban-1
+Problem name: sokoban-p1
 Facts loaded.
 time: 1, 64 facts and 3 exclusive pairs.
 time: 2, 68 facts and 21 exclusive pairs.
