@@ -1,0 +1,24 @@
+Begin solver specification
+    -maxint        0   -maxsec 0.000000  chaff
+End solver specification
+Loading domain file: sokoban-domain.pddl
+Loading fact file: sokoban-p2.pddl
+Problem name: sokoban-p2
+Facts loaded.
+time: 1, 63 facts and 0 exclusive pairs.
+time: 2, 63 facts and 0 exclusive pairs.
+315 nodes created.
+
+----------------------------------------------------
+NO SOLUTION
+Problem not solvable: can't even reach non-mutex goals
+    Search halted after 0 steps
+    0 entries in hash table and 0 hits
+    avg set size 0
+----------------------------------------------------
+
+####################################################
+Total elapsed time:   0.00 seconds
+Time in milliseconds: 2
+
+####################################################
