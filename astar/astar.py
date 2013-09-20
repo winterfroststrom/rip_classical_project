@@ -1,4 +1,5 @@
 import argparse
+from collections import deque
 
 parser = argparse.ArgumentParser(description='Solve Sokoban with A*.')
 parser.add_argument('problem', help='problem file for sokoban')
@@ -116,7 +117,7 @@ def strAction(action):
 	return '(' + ACTIONS.string(action[0]) + ',' + DIRECTIONS.string(action[1]) + ')'
 
 def strSuccessor(successor):
-	return 'ACTIONS: '+ ''.join(map(lambda x: strAction(x), successor[2])) + ' STATE: \n' + strState(successor[0])
+	return 'ACTIONS (' + str(len(successor[2])) + '): ' + ''.join(map(lambda x: strAction(x), successor[2])) + ' STATE: \n' + strState(successor[0])
 
 def goalsMet(state, goals):
 	for goal in goals:
@@ -142,7 +143,7 @@ class Successor:
 
 def bfs(initial_state, goals, player):
 	start = (initial_state, player, [])
-	ds = [start]
+	ds = deque([start])
 	visited = set([])
 	while ds:
 		state = ds.pop()
@@ -153,7 +154,7 @@ def bfs(initial_state, goals, player):
 			return state
 		succs = successors(*state)
 		for successor in succs:
-			ds.append(successor)
+			ds.appendleft(successor)
 
 def astar(state, goals):
 	pass

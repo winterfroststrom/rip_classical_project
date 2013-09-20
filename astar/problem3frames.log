@@ -1,0 +1,809 @@
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X @ * * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X  @* * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X   * * * X
+X X@X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X   * * * X
+X X X X XXX
+X  @    X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X   * * * X
+X X X X XXX
+X   @   X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X   * * * X
+X X X X XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X   * * * X
+X X X@X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X   *@* * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,WEST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X  *@ * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,WEST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *@  * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X@X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X  @    X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X   @   X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X     @ X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X      @X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X@XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   *@* X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX@X X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X@X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X@  X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X @ X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X  @X
+      X X X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X@X
+XXXXXXX X X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X@X
+X *   * * X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   * *@X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,WEST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   **@ X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   ** @X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X@X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X   X
+      X X@X
+XXXXXXX X X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X  @X
+      X X X
+XXXXXXX X X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X @ X
+      X X X
+XXXXXXX X X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X@  X
+      X X X
+XXXXXXX X X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X@X X
+XXXXXXX X X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX@X X
+X *   **  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *   *@  X
+X X X X*XXX
+X       X  
+XXXXXXXXX
+(PUSH,WEST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X *  *@   X
+X X X X*XXX
+X       X  
+XXXXXXXXX
+(PUSH,WEST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X * *@    X
+X X X X*XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X@X*XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X*XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X*XXX
+X     @ X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X*XXX
+X      @X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX X X
+X * *  *  X
+X X X X@XXX
+X       X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X   X
+      X X X
+XXXXXXX*X X
+X * *  @  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X   X
+      X*X X
+XXXXXXX@X X
+X * *     X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X*  X
+      X@X X
+XXXXXXX X X
+X * *     X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX@X X
+X * *     X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *  @  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X@XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X XXX
+X      @X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X XXX
+X     @ X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X XXX
+X   @   X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X X X XXX
+X  @    X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * *     X
+X X@X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *@*     X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X * @*    X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *  @*   X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *   @*  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *  @ *  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *    *  X
+X X X@X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *    *  X
+X X X X XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *    *  X
+X X X X XXX
+X     @ X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *    *  X
+X X X X XXX
+X      @X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX X X
+X *    *  X
+X X X X@XXX
+X       X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X*  X
+      X X X
+XXXXXXX*X X
+X *    @  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX@X X
+X *       X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *    @  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X@XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X      @X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X     @ X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X   @   X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X  @    X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X @     X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X X X X XXX
+X@      X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X *       X
+X@X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X@*       X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X @*      X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X  @*     X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X   @*    X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X    @*   X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(PUSH,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X     @*  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,WEST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X    @ *  X
+X X X X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X      *  X
+X X X@X XXX
+X       X  
+XXXXXXXXX
+(MOVE,SOUTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X      *  X
+X X X X XXX
+X    @  X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X      *  X
+X X X X XXX
+X     @ X  
+XXXXXXXXX
+(MOVE,EAST):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X      *  X
+X X X X XXX
+X      @X  
+XXXXXXXXX
+(MOVE,NORTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX X X
+X      *  X
+X X X X@XXX
+X       X  
+XXXXXXXXX
+(PUSH,NORTH):
+      XXXXX
+      X*  X
+      X*X X
+XXXXXXX*X X
+X      @  X
+X X X X XXX
+X       X  
+XXXXXXXXX
