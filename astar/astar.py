@@ -1,29 +1,34 @@
 import argparse
 from collections import deque
+from time import time
 
 parser = argparse.ArgumentParser(description='Solve Sokoban with A*.')
 parser.add_argument('problem', help='problem file for sokoban')
+parser.add_argument('-algorithm', help='BFS|DFS')
 parser.add_argument('-frames', help='show frames', action="store_true")
 args = parser.parse_args()
 
 
 def list2tuple(l):
-	return tuple(map(lambda x: tuple(x), l))
+	return tuple(map(tuple, l))
 
 def parseProblem(problem):
 	parsed_problem = []
 	goals = []
+	append1 = parsed_problem.append
+	appendg = goals.append
 	for i in range(len(problem)):
-		parsed_problem.append([])
+		append1([])
+		append2 = parsed_problem[i].append
 		for j in range(len(problem[i])):
 			if problem[i][j] == '?':
-				parsed_problem[i].append(' ')
-				goals.append((i, j))
+				append2(' ')
+				appendg((i, j))
 			elif problem[i][j] == '@':
-				parsed_problem[i].append('@')
+				append2('@')
 				player = (i, j)
 			else:
-				parsed_problem[i].append(problem[i][j])
+				append2(problem[i][j])
 	return list2tuple(parsed_problem), tuple(goals), player
 
 def strState(problem):
@@ -45,11 +50,12 @@ class DIRECTIONS:
 	SOUTH = (1, 0)
 	EAST = (0, 1)
 	WEST = (0, -1)
-	DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
-	
+	ALLDIRECTIONS = [NORTH, SOUTH, EAST, WEST]
+	ALLBUT = {NORTH : (SOUTH, EAST, WEST),SOUTH : (NORTH, EAST, WEST),EAST : (NORTH, SOUTH, WEST),WEST : (NORTH, SOUTH, EAST) }
+
 	@staticmethod
 	def allBut(direction):
-		return [x for x in DIRECTIONS if x != direction]
+		return DIRECTIONS.ALLBUT[direction]
 	
 	@staticmethod
 	def string(direction):
@@ -82,34 +88,38 @@ def block(ch):
 	return ch == '*';
 
 def copyState(state):
-	copy = []
-	for i in range(len(state)):
-		copy.append([])
-		for j in range(len(state[i])):
-			copy[i].append(state[i][j])
-	return copy
+	return list(map(list, state))
 
 def createSuccessor(state, player, actions, action):
 	successor = copyState(state)
-	successor[player[0]][player[1]] = ' '
-	if action[0] == ACTIONS.MOVE:
-		setDirectionOf(successor, player, action[1], '@')
-	elif action[0] == ACTIONS.PUSH:
-		setDirectionOf(successor, player, action[1], '@')
-		setDirectionOf(successor, player, composeDirection(action[1], action[1]), '*')
-	return (list2tuple(successor), composeDirection(player, action[1]), actions + [action])
+	p0 = player[0]
+	p1 = player[1]
+	a1 = action[1]
+	aa0 = a1[0]
+	aa1 = a1[1]
+	successor[p0][p1] = ' '
+	x1 = p0 + aa0
+	y1 = p1 + aa1
+	successor[x1][y1] = '@'
+	if action[0] == ACTIONS.PUSH:
+		successor[x1 + aa0][y1 + aa1] = '*'
+	act = actions[:]
+	act.append(action)
+	return (list2tuple(successor), (x1, y1), act)
+
 
 def successors(state, player, actions):
 	successors = []
-	for direction in DIRECTIONS.DIRECTIONS:
+	append = successors.append
+	for direction in DIRECTIONS.ALLDIRECTIONS:
 		space = directionOf(state, player, direction) 
 		if clear(space):
 			action = (ACTIONS.MOVE, direction)
-			successors.append((createSuccessor(state, player, actions, action)))
+			append((createSuccessor(state, player, actions, action)))
 		elif block(space):
 			if clear(directionOf(state, player, composeDirection(direction, direction))):
 				action = (ACTIONS.PUSH, direction)
-				successors.append(createSuccessor(state, player, actions, action))
+				append(createSuccessor(state, player, actions, action))
 	return successors
 
 
@@ -130,7 +140,7 @@ class Successor:
 		self.successor = successor
 
 	def __eq__(self, other):
-		return isinstance(other, self.__class__) and self.successor[0] == other.successor[0]
+		return self.successor[0] == other.successor[0]
 
 	def __ne__(self, other):
 		return not self.__eq__(other)
@@ -141,20 +151,37 @@ class Successor:
 	def __str__(self):
 		return strSuccessor(self.successor)
 
-def bfs(initial_state, goals, player):
+iterations = 0
+
+def bdfs(initial_state, goals, player, ds, addDs):
+	global iterations
 	start = (initial_state, player, [])
-	ds = deque([start])
+	addDs(start)
 	visited = set([])
+	vadd = visited.add
 	while ds:
 		state = ds.pop()
 		if Successor(state) in visited:
 			continue
-		visited = visited | set([Successor(state)])
+		iterations = iterations + 1
+		vadd(Successor(state))
 		if goalsMet(state[0], goals):
 			return state
 		succs = successors(*state)
 		for successor in succs:
-			ds.appendleft(successor)
+			addDs(successor)
+
+def bfs(initial_state, goals, player):
+	ds = deque([])
+	append = ds.appendleft
+	return bdfs(initial_state, goals, player,ds, append)
+
+
+def dfs(initial_state, goals, player):
+	ds = []
+	return bdfs(initial_state, goals, player, ds, ds.append)
+
+
 
 def astar(state, goals):
 	pass
@@ -163,17 +190,24 @@ with open(args.problem, 'r') as problem_file:
 	problem = map(lambda x: list(x),problem_file.read().split('\n'))
 
 problem, goals, player = parseProblem(problem)
+"""
+import cProfile
+cProfile.run('bfs(problem, goals, player)', 'bfs.profile')
 
+import pstats
+stats = pstats.Stats('bfs.profile')
+stats.strip_dirs().sort_stats('time').print_stats()
+"""
 
-
-
-print(strState(problem))
-#print(player)
-#ss = successors(problem, player, [])
-#for s in ss:
-#	print(strSuccessor(s))
-solution = bfs(problem, goals, player)
-
+if args.algorithm == 'DFS':
+	startTime = time()
+	solution = dfs(problem, goals, player)
+else:
+	startTime = time()
+	solution = bfs(problem, goals, player)
+	
+print('time(s):' + str(time() - startTime))
+print('states:' + str(iterations))
 if args.frames:
 	state = problem
 	for action in solution[2]:
