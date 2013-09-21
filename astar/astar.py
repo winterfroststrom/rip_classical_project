@@ -1,11 +1,12 @@
-import argparse
+import argparse, heapq
 from collections import deque
 from time import time
 
 parser = argparse.ArgumentParser(description='Solve Sokoban with A*.')
 parser.add_argument('problem', help='problem file for sokoban')
-parser.add_argument('-algorithm', help='BFS|DFS')
+parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs'], default='astar')
 parser.add_argument('-frames', help='show frames', action="store_true")
+parser.add_argument('-perf', help='show performance data', action='store_true')
 args = parser.parse_args()
 
 
@@ -15,35 +16,39 @@ def list2tuple(l):
 def parseProblem(problem):
 	parsed_problem = []
 	goals = []
+	blocks = []
 	append1 = parsed_problem.append
+	appendb = blocks.append
 	appendg = goals.append
 	for i in range(len(problem)):
 		append1([])
 		append2 = parsed_problem[i].append
 		for j in range(len(problem[i])):
-			if problem[i][j] == '?':
+			space = problem[i][j]
+			if space == '?':
 				append2(' ')
 				appendg((i, j))
-			elif problem[i][j] == '@':
+			elif space == '@':
 				append2('@')
 				player = (i, j)
+			elif space == '*':
+				appendb((i, j))
+				append2(space)
 			else:
-				append2(problem[i][j])
-	return list2tuple(parsed_problem), tuple(goals), player
+				append2(space)
+	return list2tuple(parsed_problem), tuple(goals), player, blocks
 
 def strState(problem):
 	return ''.join(map(lambda x : ''.join(x) + '\n', problem)).rstrip()
 
-class ACTIONS:
-	MOVE = 0
-	PUSH = 1
-	
-	@staticmethod
-	def string(action):
-		if action == ACTIONS.MOVE:
-			return 'MOVE'
-		elif action == ACTIONS.PUSH:
-			return 'PUSH'
+MOVE = 0
+PUSH = 1
+
+def stringA(action):
+	if action == MOVE:
+		return 'MOVE'
+	elif action == PUSH:
+		return 'PUSH'
 
 class DIRECTIONS:
 	NORTH = (-1, 0)
@@ -101,7 +106,7 @@ def createSuccessor(state, player, actions, action):
 	x1 = p0 + aa0
 	y1 = p1 + aa1
 	successor[x1][y1] = '@'
-	if action[0] == ACTIONS.PUSH:
+	if action[0]:#PUSH is 1, which evals to True
 		successor[x1 + aa0][y1 + aa1] = '*'
 	act = actions[:]
 	act.append(action)
@@ -114,17 +119,17 @@ def successors(state, player, actions):
 	for direction in DIRECTIONS.ALLDIRECTIONS:
 		space = directionOf(state, player, direction) 
 		if clear(space):
-			action = (ACTIONS.MOVE, direction)
+			action = (MOVE, direction)
 			append((createSuccessor(state, player, actions, action)))
 		elif block(space):
 			if clear(directionOf(state, player, composeDirection(direction, direction))):
-				action = (ACTIONS.PUSH, direction)
+				action = (PUSH, direction)
 				append(createSuccessor(state, player, actions, action))
 	return successors
 
 
 def strAction(action):
-	return '(' + ACTIONS.string(action[0]) + ',' + DIRECTIONS.string(action[1]) + ')'
+	return '(' + stringA(action[0]) + ',' + DIRECTIONS.string(action[1]) + ')'
 
 def strSuccessor(successor):
 	return 'ACTIONS (' + str(len(successor[2])) + '): ' + ''.join(map(lambda x: strAction(x), successor[2])) + ' STATE: \n' + strState(successor[0])
@@ -153,7 +158,7 @@ class Successor:
 
 iterations = 0
 
-def bdfs(initial_state, goals, player, ds, addDs):
+def bdfs(initial_state, goals, player, blocks, ds, addDs):
 	global iterations
 	start = (initial_state, player, [])
 	addDs(start)
@@ -161,58 +166,101 @@ def bdfs(initial_state, goals, player, ds, addDs):
 	vadd = visited.add
 	while ds:
 		state = ds.pop()
-		if Successor(state) in visited:
+		visit = Successor(state)
+		if visit in visited:
 			continue
 		iterations = iterations + 1
-		vadd(Successor(state))
+		vadd(visit)
 		if goalsMet(state[0], goals):
 			return state
 		succs = successors(*state)
 		for successor in succs:
 			addDs(successor)
 
-def bfs(initial_state, goals, player):
+def bfs(initial_state, goals, player, blocks):
 	ds = deque([])
 	append = ds.appendleft
-	return bdfs(initial_state, goals, player,ds, append)
+	return bdfs(initial_state, goals, player, blocks, ds, append)
 
 
-def dfs(initial_state, goals, player):
+def dfs(initial_state, goals, player, blocks):
 	ds = []
-	return bdfs(initial_state, goals, player, ds, ds.append)
+	return bdfs(initial_state, goals, player, blocks, ds, ds.append)
 
+def absManDist(d1, d2):
+	x = d1[0] - d2[0]
+	y =d1[1] - d2[1]
+	if x < 0:
+		x = -x
+	if y < 0:
+		y = -y
+	return x + y
 
+def minGoalHeuristic(state, goals):
+	player = state[1]
+	h = 10000
+	for goal in goals:
+		th = absManDist(player, goal)
+		if th < h:
+			h = th
+	return h
 
-def astar(state, goals):
-	pass
+def astar(initial_state, goals, player, blocks):
+	global iterations
+	start = (initial_state, player, [])
+	ds = []
+	dsadd = heapq.heappush
+	dspop = heapq.heappop
+	dsadd(ds, (0, start))
+	visited = set([])
+	vadd = visited.add
+	while ds:
+		_, state = dspop(ds)
+		visit = Successor(state)
+		if visit in visited:
+			continue
+		iterations = iterations + 1
+		vadd(visit)
+		if goalsMet(state[0], goals):
+			return state
+		succs = successors(*state)
+		g = len(state[2]) + 1
+		for successor in succs:
+			player = successor[1]
+			h = minGoalHeuristic(state, goals)
+			f = g + h
+			dsadd(ds, (f, successor))
 
 with open(args.problem, 'r') as problem_file:
 	problem = map(lambda x: list(x),problem_file.read().split('\n'))
 
-problem, goals, player = parseProblem(problem)
-"""
-import cProfile
-cProfile.run('bfs(problem, goals, player)', 'bfs.profile')
+problem, goals, player, blocks = parseProblem(problem)
+if args.perf:
+	import cProfile
+	command = args.algorithm + '(problem, goals, player, blocks)'
+	cProfile.run(command, 'algo.profile')
 
-import pstats
-stats = pstats.Stats('bfs.profile')
-stats.strip_dirs().sort_stats('time').print_stats()
-"""
-
-if args.algorithm == 'DFS':
-	startTime = time()
-	solution = dfs(problem, goals, player)
+	import pstats
+	stats = pstats.Stats('algo.profile')
+	stats.strip_dirs().sort_stats('time').print_stats()
 else:
-	startTime = time()
-	solution = bfs(problem, goals, player)
+	if args.algorithm == 'bfs':
+		startTime = time()
+		solution = bfs(problem, goals, player, blocks)
+	elif args.algorithm == 'dfs':
+		startTime = time()
+		solution = dfs(problem, goals, player, blocks)
+	else:
+		startTime = time()
+		solution = astar(problem, goals, player, blocks)
 	
-print('time(s):' + str(time() - startTime))
-print('states:' + str(iterations))
-if args.frames:
-	state = problem
-	for action in solution[2]:
-		state, player, _ = createSuccessor(state, player, [], action)
-		print(strAction(action) + ':')
-		print(strState(state))
-else:
-	print(strSuccessor(solution))
+	print('time(s):' + str(time() - startTime))
+	print('states:' + str(iterations))
+	if args.frames:
+		state = problem
+		for action in solution[2]:
+			state, player, _ = createSuccessor(state, player, [], action)
+			print(strAction(action) + ':')
+			print(strState(state))
+	else:
+		print(strSuccessor(solution))
