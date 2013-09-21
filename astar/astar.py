@@ -9,6 +9,19 @@ parser.add_argument('-frames', help='show frames', action="store_true")
 parser.add_argument('-perf', help='show performance data', action='store_true')
 args = parser.parse_args()
 
+CLEAR = ' '
+BLOCK = '*'
+PLAYER = '@'
+GOAL = '?'
+MOVE = 0
+PUSH = 1
+NORTH = (-1, 0, (-2, 0))
+SOUTH = (1, 0, (2, 0))
+EAST = (0, 1, (0, 2))
+WEST = (0, -1, (0, -2))
+DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
+ALL_DIRECTIONS_BUT = {NORTH : (SOUTH, EAST, WEST),SOUTH : (NORTH, EAST, WEST),EAST : (NORTH, SOUTH, WEST),WEST : (NORTH, SOUTH, EAST) }
+
 
 def list2tuple(l):
 	return tuple(map(tuple, l))
@@ -25,72 +38,24 @@ def parseProblem(problem):
 		append2 = parsed_problem[i].append
 		for j in range(len(problem[i])):
 			space = problem[i][j]
-			if space == '?':
-				append2(' ')
+			if space == GOAL:
+				append2(CLEAR)
 				appendg((i, j))
-			elif space == '@':
-				append2('@')
+			elif space == PLAYER:
+				append2(PLAYER)
 				player = (i, j)
-			elif space == '*':
+			elif space == BLOCK:
 				appendb((i, j))
 				append2(space)
 			else:
 				append2(space)
 	return list2tuple(parsed_problem), tuple(goals), player, blocks
 
-def strState(problem):
-	return ''.join(map(lambda x : ''.join(x) + '\n', problem)).rstrip()
-
-MOVE = 0
-PUSH = 1
-
-def stringA(action):
-	if action == MOVE:
-		return 'MOVE'
-	elif action == PUSH:
-		return 'PUSH'
-
-class DIRECTIONS:
-	NORTH = (-1, 0)
-	SOUTH = (1, 0)
-	EAST = (0, 1)
-	WEST = (0, -1)
-	ALLDIRECTIONS = [NORTH, SOUTH, EAST, WEST]
-	ALLBUT = {NORTH : (SOUTH, EAST, WEST),SOUTH : (NORTH, EAST, WEST),EAST : (NORTH, SOUTH, WEST),WEST : (NORTH, SOUTH, EAST) }
-
-	@staticmethod
-	def allBut(direction):
-		return DIRECTIONS.ALLBUT[direction]
-	
-	@staticmethod
-	def string(direction):
-		if direction == DIRECTIONS.NORTH:
-			return "NORTH"
-		elif direction == DIRECTIONS.SOUTH:
-			return "SOUTH"
-		elif direction == DIRECTIONS.EAST:
-			return "EAST"
-		elif direction == DIRECTIONS.WEST:
-			return "WEST"
-
-def reverseOf(direction):
-	return (-direction[0], -direction[1])
-
-
 def directionOf(problem, position, direction):
 	return problem[position[0] + direction[0]][position[1] + direction[1]]
 
 def setDirectionOf(problem, position, direction, item):
 	problem[position[0] + direction[0]][position[1] + direction[1]] = item
-
-def composeDirection(direction1, direction2):
-	return (direction1[0] + direction2[0], direction1[1] + direction2[1])
-
-def clear(ch):
-	return ch == ' '
-
-def block(ch):
-	return ch == '*';
 
 def copyState(state):
 	return list(map(list, state))
@@ -102,12 +67,12 @@ def createSuccessor(state, player, actions, action):
 	a1 = action[1]
 	aa0 = a1[0]
 	aa1 = a1[1]
-	successor[p0][p1] = ' '
+	successor[p0][p1] = CLEAR
 	x1 = p0 + aa0
 	y1 = p1 + aa1
-	successor[x1][y1] = '@'
+	successor[x1][y1] = PLAYER
 	if action[0]:#PUSH is 1, which evals to True
-		successor[x1 + aa0][y1 + aa1] = '*'
+		successor[x1 + aa0][y1 + aa1] = BLOCK
 	act = actions[:]
 	act.append(action)
 	return (list2tuple(successor), (x1, y1), act)
@@ -116,20 +81,39 @@ def createSuccessor(state, player, actions, action):
 def successors(state, player, actions):
 	successors = []
 	append = successors.append
-	for direction in DIRECTIONS.ALLDIRECTIONS:
-		space = directionOf(state, player, direction) 
-		if clear(space):
+	for direction in DIRECTIONS:
+		space = directionOf(state, player, direction)
+		if space == CLEAR:
 			action = (MOVE, direction)
 			append((createSuccessor(state, player, actions, action)))
-		elif block(space):
-			if clear(directionOf(state, player, composeDirection(direction, direction))):
+		elif space == BLOCK:
+			if directionOf(state, player, direction[2]) == CLEAR:
 				action = (PUSH, direction)
 				append(createSuccessor(state, player, actions, action))
 	return successors
 
+def strState(problem):
+	return ''.join(map(lambda x : ''.join(x) + '\n', problem)).rstrip()
+
+
+def stringA(action):
+	if action == MOVE:
+		return 'MOVE'
+	elif action == PUSH:
+		return 'PUSH'
+
+def stringD(direction):
+	if direction == NORTH:
+		return "NORTH"
+	elif direction == SOUTH:
+		return "SOUTH"
+	elif direction == EAST:
+		return "EAST"
+	elif direction == WEST:
+		return "WEST"
 
 def strAction(action):
-	return '(' + stringA(action[0]) + ',' + DIRECTIONS.string(action[1]) + ')'
+	return '(' + stringA(action[0]) + ',' + stringD(action[1]) + ')'
 
 def strSuccessor(successor):
 	return 'ACTIONS (' + str(len(successor[2])) + '): ' + ''.join(map(lambda x: strAction(x), successor[2])) + ' STATE: \n' + strState(successor[0])
@@ -232,7 +216,7 @@ def astar(initial_state, goals, player, blocks):
 			dsadd(ds, (f, successor))
 
 with open(args.problem, 'r') as problem_file:
-	problem = map(lambda x: list(x),problem_file.read().split('\n'))
+	problem = list(map(lambda x: list(x),problem_file.read().split('\n')))
 
 problem, goals, player, blocks = parseProblem(problem)
 if args.perf:
