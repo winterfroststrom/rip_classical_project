@@ -4,7 +4,7 @@ from time import time
 
 parser = argparse.ArgumentParser(description='Solve Sokoban with A*.')
 parser.add_argument('problem', help='problem file for sokoban')
-parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs'], default='astar')
+parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs', 'rbfs', 'bastar'], default='astar')
 parser.add_argument('-frames', help='show frames', action="store_true")
 parser.add_argument('-perf', help='show performance data', action='store_true')
 args = parser.parse_args()
@@ -53,7 +53,33 @@ def parseProblem(problem):
 				append2(CLEAR)
 			else:
 				append2(space)
-	return list2tuple(parsed_problem), tuple(goals), player, blocks
+	return list2tuple(parsed_problem), tuple(goals), player, tuple(blocks)
+
+def rsuccessors(directions, smap, player, blocks, actions):
+	successors = []
+	append = successors.append
+	px = player[0]
+	py = player[1]
+	for direction in directions:
+		dx = direction[0]
+		dy = direction[1]
+		nx = px - dx
+		ny = py - dy
+		nextPlayer = (nx, ny)
+		if smap[nx][ny] == CLEAR and not nextPlayer in blocks:
+			actionsCopy = actions[:]
+			actionsCopy.append((MOVE, direction))
+			append((nextPlayer, blocks, actionsCopy))
+			prevBlock = (px + dx, py + dy)
+			if prevBlock in blocks:
+				actionsCopy = actions[:]
+				actionsCopy.append((PUSH, direction))
+				newBlocks = [block for block in blocks if block != prevBlock]
+				newBlocks.append(player)
+				append((nextPlayer, newBlocks, actionsCopy))
+	return successors
+
+	
 
 def successors(directions, smap, player, blocks, actions):
 	successors = []
@@ -148,12 +174,12 @@ def bdfs(smap, goals, player, blocks, ds, addDs):
 def bfs(initial_state, goals, player, blocks):
 	ds = deque([])
 	append = ds.appendleft
-	return bdfs(initial_state, goals, player, blocks, ds, append)
+	return bdfs(initial_state, goals, player, list(blocks), ds, append)
 
 
 def dfs(initial_state, goals, player, blocks):
 	ds = []
-	return bdfs(initial_state, goals, player, blocks, ds, ds.append)
+	return bdfs(initial_state, goals, player, list(blocks), ds, ds.append)
 
 def absManDist(d1, d2):
 	x = d1[0] - d2[0]
@@ -239,9 +265,32 @@ def mstHeuristic(player, blocks, goals):
 			e = absManDist(current, point)
 			dsadd(ds, (e, point))
 
+def rbfs(smap, blocks, player, goals):
+	global iterations
+	start = (player, list(blocks), [])
+	ds = deque([])
+	dsadd = ds.appendleft
+	dspop = ds.pop
+	dsadd(start)
+	visited = set([])
+	vadd = visited.add
+	while ds:
+		state = dspop()
+		visit = (state[SPLAYER], tuple(sorted(state[SBLOCKS])))
+		if visit in visited:
+			continue
+		iterations = iterations + 1
+		vadd(visit)
+		if goalsMet(state[SBLOCKS], goals) and player == state[SPLAYER]:
+			state[SACTIONS].reverse()
+			return state
+		succs = rsuccessors(DIRECTIONS, smap, *state)
+		for successor in succs:
+			dsadd(successor)
+
 def astar(smap, goals, player, blocks):
 	global iterations
-	start = (player, blocks, [])
+	start = (player, list(blocks), [])
 	ds = []
 	dsadd = heapq.heappush
 	dspop = heapq.heappop
@@ -269,6 +318,63 @@ def astar(smap, goals, player, blocks):
 			f = g + h
 			dsadd(ds, (f, successor))
 
+def bastar(smap, goals, player, blocks):
+	global iterations
+	a_start = (player, list(blocks), [])
+	a_ds = []
+	a_dsadd = heapq.heappush
+	a_dspop = heapq.heappop
+	a_dsadd(a_ds, (0, a_start))
+	a_visited = {}
+	a_goals = goals
+	dead = findDeadSpots(smap, a_goals)
+	b_start = (player, list(goals), [])
+	b_ds = deque([])
+	b_dsadd = b_ds.appendleft
+	b_dspop = b_ds.pop
+	b_dsadd(b_start)
+	b_visited = {}
+	b_goals = blocks
+	while a_ds and b_ds:
+		_, a_state = a_dspop(a_ds)
+		a_visit = (a_state[SPLAYER], tuple(sorted(a_state[SBLOCKS])))
+		if a_visit in a_visited:
+			continue
+		iterations = iterations + 1
+		a_visited[a_visit] = a_state
+		if a_visit in b_visited:
+			b_state = b_visited[a_visit]
+			b_state[SACTIONS].reverse()
+			return (player, b_goals, a_state[SACTIONS] + b_state[SACTIONS])
+		if goalsMet(a_state[SBLOCKS], a_goals):
+			return a_state
+		a_succs = successors(DIRECTIONS, smap, *a_state)
+		g = len(a_state[SACTIONS]) + 1
+		for successor in a_succs:
+			h = deadSpotHeuristic(successor[SBLOCKS], dead)
+			f = g + h
+			a_dsadd(a_ds, (f, successor))
+		b_state = b_dspop()
+		b_visit = (b_state[SPLAYER], tuple(sorted(b_state[SBLOCKS])))
+		if b_visit in b_visited:
+			continue
+		iterations = iterations + 1
+		b_visited[b_visit] = b_state
+		if b_visit in a_visited:
+			a_state = a_visited[b_visit]
+			b_state[SACTIONS].reverse()
+			return (player, b_goals, a_state[SACTIONS] + b_state[SACTIONS])
+		if goalsMet(b_state[SBLOCKS], b_goals) and player == b_state[SPLAYER]:
+			b_state[SACTIONS].reverse()
+			return b_state
+		b_succs = rsuccessors(DIRECTIONS, smap, *b_state)
+		for successor in b_succs:
+			b_dsadd(successor)
+
+
+	
+
+
 with open(args.problem, 'r') as problem_file:
 	problem = list(map(lambda x: list(x),problem_file.read().split('\n')))[:-1]
 
@@ -288,6 +394,12 @@ else:
 	elif args.algorithm == 'dfs':
 		startTime = time()
 		solution = dfs(problem, goals, player, blocks)
+	elif args.algorithm == 'rbfs':
+		startTime = time()
+		solution = rbfs(problem, goals, player, blocks)
+	elif args.algorithm == 'bastar':
+		startTime = time()
+		solution = bastar(problem, goals, player, blocks)
 	else:
 		startTime = time()
 		solution = astar(problem, goals, player, blocks)
