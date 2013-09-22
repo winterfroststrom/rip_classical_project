@@ -214,6 +214,31 @@ def nearestPairHeuristic(blocks, goals):
 def deadAndNearestHeuristic(blocks, dead, goals):
 	return deadSpotHeuristic(blocks, dead) + nearestPairHeuristic(blocks, goals)
 
+def mstHeuristic(player, blocks, goals):
+	pointsList = list(goals) + blocks
+	pointsList.append(player)
+	points = set(pointsList)
+	target = len(points)
+	ds = [(0, player)]
+	dsadd = heapq.heappush
+	dspop = heapq.heappop
+	visited = set([])
+	vadd = visited.add
+	premove = points.remove
+	h = 0
+	while ds:
+		p, current = dspop(ds)
+		if current in visited:
+			continue
+		vadd(current)
+		h = h + p
+		if len(visited) == target:
+			return h
+		premove(current)
+		for point in points:
+			e = absManDist(current, point)
+			dsadd(ds, (e, point))
+
 def astar(smap, goals, player, blocks):
 	global iterations
 	start = (player, blocks, [])
@@ -237,6 +262,7 @@ def astar(smap, goals, player, blocks):
 		g = len(state[SACTIONS]) + 1
 		for successor in succs:
 			h = deadSpotHeuristic(successor[SBLOCKS], dead)
+			#h = mstHeuristic(state[SPLAYER], state[SBLOCKS], goals)
 			#h = minGoalHeuristic(state, goals)
 			#h = nearestPairHeuristic(successor[SBLOCKS], goals)
 			#h = deadAndNearestHeuristic(successor[SBLOCKS], dead, goals)
