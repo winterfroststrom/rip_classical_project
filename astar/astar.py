@@ -19,7 +19,7 @@ NORTH = (-1, 0, (-2, 0))
 SOUTH = (1, 0, (2, 0))
 EAST = (0, 1, (0, 2))
 WEST = (0, -1, (0, -2))
-DIRECTIONS = [NORTH, SOUTH, EAST, WEST]
+DIRECTIONS = (NORTH, SOUTH, EAST, WEST)
 ALL_DIRECTIONS_BUT = {NORTH : (SOUTH, EAST, WEST),SOUTH : (NORTH, EAST, WEST),EAST : (NORTH, SOUTH, WEST),WEST : (NORTH, SOUTH, EAST) }
 
 
@@ -51,12 +51,6 @@ def parseProblem(problem):
 				append2(space)
 	return list2tuple(parsed_problem), tuple(goals), player, blocks
 
-def directionOf(problem, position, direction):
-	return problem[position[0] + direction[0]][position[1] + direction[1]]
-
-def setDirectionOf(problem, position, direction, item):
-	problem[position[0] + direction[0]][position[1] + direction[1]] = item
-
 def copyState(state):
 	return list(map(list, state))
 
@@ -81,13 +75,15 @@ def createSuccessor(state, player, actions, action):
 def successors(state, player, actions):
 	successors = []
 	append = successors.append
+	px = player[0]
+	py = player[1]
 	for direction in DIRECTIONS:
-		space = directionOf(state, player, direction)
+		space = state[px + direction[0]][py + direction[1]]
 		if space == CLEAR:
 			action = (MOVE, direction)
 			append((createSuccessor(state, player, actions, action)))
 		elif space == BLOCK:
-			if directionOf(state, player, direction[2]) == CLEAR:
+			if state[px + direction[2][0]][py + direction[2][1]] == CLEAR:
 				action = (PUSH, direction)
 				append(createSuccessor(state, player, actions, action))
 	return successors
@@ -248,3 +244,4 @@ else:
 			print(strState(state))
 	else:
 		print(strSuccessor(solution))
+
