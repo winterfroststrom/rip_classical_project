@@ -173,6 +173,32 @@ def minGoalHeuristic(state, goals):
 			h = th
 	return h
 
+def findDeadSpots(smap, goals):
+	dead = []
+	append = dead.append
+	for i in range(len(smap) - 2, 1):
+		for j in range(len(smap) - 2, 1):
+			if smap[i][j] in goals: 
+				continue
+			walls = 0
+			if smap[i + 1][j] != CLEAR and smap[i][j + 1] in goals:
+				walls = walls + 1
+			if smap[i - 1][j] != CLEAR and smap[i][j + 1] in goals:
+				walls = walls + 1
+			if smap[i][j + 1] != CLEAR and smap[i - 1][j] in goals:
+				walls = walls + 1
+			if smap[i][j - 1] != CLEAR and smap[i - 1][j] in goals:
+				walls = walls + 1
+			if walls > 1:
+				append((i, j))
+	return tuple(dead)
+
+def deadSpotHeuristic(blocks, dead):
+	for block in blocks:
+		if block in dead:
+			return 10000
+	return 0
+
 def astar(smap, goals, player, blocks):
 	global iterations
 	start = (player, blocks, [])
@@ -182,6 +208,7 @@ def astar(smap, goals, player, blocks):
 	dsadd(ds, (0, start))
 	visited = set([])
 	vadd = visited.add
+	dead = findDeadSpots(smap, goals)
 	while ds:
 		_, state = dspop(ds)
 		visit = (state[SPLAYER], tuple(sorted(state[SBLOCKS])))
@@ -194,8 +221,8 @@ def astar(smap, goals, player, blocks):
 		succs = successors(DIRECTIONS, smap, *state)
 		g = len(state[SACTIONS]) + 1
 		for successor in succs:
-			player = successor[SPLAYER]
-			h = minGoalHeuristic(state, goals)
+			h = deadSpotHeuristic(successor[SBLOCKS], dead)
+			#h = minGoalHeuristic(state, goals)
 			f = g + h
 			dsadd(ds, (f, successor))
 
