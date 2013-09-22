@@ -199,6 +199,20 @@ def deadSpotHeuristic(blocks, dead):
 			return 10000
 	return 0
 
+def nearestPairHeuristic(blocks, goals):
+	h = 0
+	for block in blocks:
+		min_dist = 10000
+		for goal in goals:
+			d = absManDist(block, goal)
+			if d < min_dist:
+				min_dist = d
+		h = h + min_dist
+	return h
+
+def deadAndNearestHeuristic(blocks, dead, goals):
+	return deadSpotHeuristic(blocks, dead) + nearestPairHeuristic(blocks, goals)
+
 def astar(smap, goals, player, blocks):
 	global iterations
 	start = (player, blocks, [])
@@ -223,6 +237,8 @@ def astar(smap, goals, player, blocks):
 		for successor in succs:
 			h = deadSpotHeuristic(successor[SBLOCKS], dead)
 			#h = minGoalHeuristic(state, goals)
+			#h = nearestPairHeuristic(successor[SBLOCKS], goals)
+			#h = deadAndNearestHeuristic(successor[SBLOCKS], dead, goals)
 			f = g + h
 			dsadd(ds, (f, successor))
 
