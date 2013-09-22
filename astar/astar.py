@@ -21,10 +21,9 @@ EAST = (0, 1)
 WEST = (0, -1)
 DIRECTIONS = (NORTH, SOUTH, EAST, WEST)
 ALL_DIRECTIONS_BUT = {NORTH : (SOUTH, EAST, WEST),SOUTH : (NORTH, EAST, WEST),EAST : (NORTH, SOUTH, WEST),WEST : (NORTH, SOUTH, EAST) }
-SMAP = 0
-SPLAYER = 1
-SBLOCKS = 2
-SACTIONS = 3
+SPLAYER = 0
+SBLOCKS = 1
+SACTIONS = 2
 ATYPE = 0
 ADIRECTION = 1
 
@@ -76,11 +75,11 @@ def successors(directions, smap, player, blocks, actions):
 				actionsCopy.append((PUSH, direction))
 				newBlocks = [block for block in blocks if block != nextPlayer]
 				newBlocks.append(nextBlock)
-				append((smap, nextPlayer, newBlocks, actionsCopy))
+				append((nextPlayer, newBlocks, actionsCopy))
 		elif smap[nx][ny] == CLEAR:
 			actionsCopy = actions[:]
 			actionsCopy.append((MOVE, direction))
-			append((smap, nextPlayer, blocks, actionsCopy))
+			append((nextPlayer, blocks, actionsCopy))
 	return successors
 
 def strState(smap, splayer, sblocks):
@@ -116,8 +115,8 @@ def stringD(direction):
 def strAction(action):
 	return '(' + stringA(action[ATYPE]) + ',' + stringD(action[ADIRECTION]) + ')'
 
-def strSuccessor(successor):
-	return 'ACTIONS (' + str(len(successor[SACTIONS])) + '): ' + ''.join(map(lambda x: strAction(x), successor[SACTIONS])) + ' STATE: \n' + strState(successor[SMAP], successor[SPLAYER], successor[SBLOCKS])
+def strNode(smap, successor):
+	return 'ACTIONS (' + str(len(successor[SACTIONS])) + '): ' + ''.join(map(lambda x: strAction(x), successor[SACTIONS])) + ' STATE: \n' + strState(smap, successor[SPLAYER], successor[SBLOCKS])
 
 def goalsMet(blocks, goals):
 	for block in blocks:
@@ -129,7 +128,7 @@ iterations = 0
 
 def bdfs(smap, goals, player, blocks, ds, addDs):
 	global iterations
-	start = (smap, player, blocks, [])
+	start = (player, blocks, [])
 	addDs(start)
 	visited = set([])
 	vadd = visited.add
@@ -142,7 +141,7 @@ def bdfs(smap, goals, player, blocks, ds, addDs):
 		vadd(visit)
 		if goalsMet(state[SBLOCKS], goals):
 			return state
-		succs = successors(DIRECTIONS, *state)
+		succs = successors(DIRECTIONS, smap, *state)
 		for successor in succs:
 			addDs(successor)
 
@@ -174,9 +173,9 @@ def minGoalHeuristic(state, goals):
 			h = th
 	return h
 
-def astar(initial_state, goals, player, blocks):
+def astar(smap, goals, player, blocks):
 	global iterations
-	start = (initial_state, player, blocks, [])
+	start = (player, blocks, [])
 	ds = []
 	dsadd = heapq.heappush
 	dspop = heapq.heappop
@@ -185,14 +184,14 @@ def astar(initial_state, goals, player, blocks):
 	vadd = visited.add
 	while ds:
 		_, state = dspop(ds)
-		visit = (state[SPLAYER], tuple(sorted(SBLOCKS)))
+		visit = (state[SPLAYER], tuple(sorted(state[SBLOCKS])))
 		if visit in visited:
 			continue
 		iterations = iterations + 1
 		vadd(visit)
 		if goalsMet(state[SBLOCKS], goals):
 			return state
-		succs = successors(DIRECTIONS, *state)
+		succs = successors(DIRECTIONS, smap, *state)
 		g = len(state[SACTIONS]) + 1
 		for successor in succs:
 			player = successor[SPLAYER]
@@ -229,9 +228,9 @@ else:
 		print("No solution")
 	elif args.frames:
 		for action in solution[SACTIONS]:
-			_, player, blocks, _ = successor([action[ADIRECTION]], problem, player, blocks, [])[0]
+			player, blocks, _ = successors([action[ADIRECTION]], problem, player, blocks, [])[0]
 			print(strAction(action) + ':')
 			print(strState(problem, player, blocks))
 	else:
-		print(strSuccessor(solution))
+		print(strNode(problem, solution))
 
