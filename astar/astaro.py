@@ -179,7 +179,10 @@ def goalsMet(state, goals):
 			return False
 	return True
 
+iterations = 0
+
 def bfs(start, goals):
+	global iterations
 	ds = deque([start])
 	visited = set([])
 	while ds:
@@ -187,6 +190,7 @@ def bfs(start, goals):
 		if current.state in visited:
 			continue
 		visited.add(current.state)
+		iterations = iterations + 1
 		if goalsMet(current.state, goals):
 			return current
 		succs = current.successors()
@@ -200,18 +204,19 @@ with open(args.problem, 'r') as problem_file:
 	problem = map(lambda x: list(x),problem_file.read().split('\n'))
 
 initial_problem, goals = parseProblem(problem)
-
+"""
 import cProfile
 cProfile.run('bfs(initial_problem, goals)', 'bfs.profile')
 
 import pstats
 stats = pstats.Stats('bfs.profile')
 stats.strip_dirs().sort_stats('time').print_stats()
-
+"""
 
 startTime = time()
 solution = bfs(initial_problem, goals)
 print("Time (s): " + str(time() - startTime))
+print("States: " + str(iterations))
 if args.frames:
 	state = initial_problem
 	for action in solution.actions:

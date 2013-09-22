@@ -15,13 +15,18 @@ PLAYER = '@'
 GOAL = '?'
 MOVE = 0
 PUSH = 1
-NORTH = (-1, 0, (-2, 0))
-SOUTH = (1, 0, (2, 0))
-EAST = (0, 1, (0, 2))
-WEST = (0, -1, (0, -2))
+NORTH = (-1, 0)
+SOUTH = (1, 0)
+EAST = (0, 1)
+WEST = (0, -1)
 DIRECTIONS = (NORTH, SOUTH, EAST, WEST)
 ALL_DIRECTIONS_BUT = {NORTH : (SOUTH, EAST, WEST),SOUTH : (NORTH, EAST, WEST),EAST : (NORTH, SOUTH, WEST),WEST : (NORTH, SOUTH, EAST) }
-
+SMAP = 0
+SPLAYER = 1
+SBLOCKS = 2
+SACTIONS = 3
+ATYPE = 0
+ADIRECTION = 1
 
 def list2tuple(l):
 	return tuple(map(tuple, l))
@@ -42,54 +47,54 @@ def parseProblem(problem):
 				append2(CLEAR)
 				appendg((i, j))
 			elif space == PLAYER:
-				append2(PLAYER)
+				append2(CLEAR)
 				player = (i, j)
 			elif space == BLOCK:
 				appendb((i, j))
-				append2(space)
+				append2(CLEAR)
 			else:
 				append2(space)
 	return list2tuple(parsed_problem), tuple(goals), player, blocks
 
-def copyState(state):
-	return list(map(list, state))
-
-def createSuccessor(state, player, actions, action):
-	successor = copyState(state)
-	p0 = player[0]
-	p1 = player[1]
-	a1 = action[1]
-	aa0 = a1[0]
-	aa1 = a1[1]
-	successor[p0][p1] = CLEAR
-	x1 = p0 + aa0
-	y1 = p1 + aa1
-	successor[x1][y1] = PLAYER
-	if action[0]:#PUSH is 1, which evals to True
-		successor[x1 + aa0][y1 + aa1] = BLOCK
-	act = actions[:]
-	act.append(action)
-	return (list2tuple(successor), (x1, y1), act)
-
-
-def successors(state, player, actions):
+def successors(directions, smap, player, blocks, actions):
 	successors = []
 	append = successors.append
 	px = player[0]
 	py = player[1]
-	for direction in DIRECTIONS:
-		space = state[px + direction[0]][py + direction[1]]
-		if space == CLEAR:
-			action = (MOVE, direction)
-			append((createSuccessor(state, player, actions, action)))
-		elif space == BLOCK:
-			if state[px + direction[2][0]][py + direction[2][1]] == CLEAR:
-				action = (PUSH, direction)
-				append(createSuccessor(state, player, actions, action))
+	for direction in directions:
+		dx = direction[0]
+		dy = direction[1]
+		nx = px + dx
+		ny = py + dy
+		nextPlayer = (nx, ny)
+		if nextPlayer in blocks:
+			nnx = nx + dx
+			nny = ny + dy
+			nextBlock = (nnx, nny)
+			if smap[nnx][nny] == CLEAR and not nextBlock in blocks:
+				actionsCopy = actions[:]
+				actionsCopy.append((PUSH, direction))
+				newBlocks = [block for block in blocks if block != nextPlayer]
+				newBlocks.append(nextBlock)
+				append((smap, nextPlayer, newBlocks, actionsCopy))
+		elif smap[nx][ny] == CLEAR:
+			actionsCopy = actions[:]
+			actionsCopy.append((MOVE, direction))
+			append((smap, nextPlayer, blocks, actionsCopy))
 	return successors
 
-def strState(problem):
-	return ''.join(map(lambda x : ''.join(x) + '\n', problem)).rstrip()
+def strState(smap, splayer, sblocks):
+	string = ''
+	for i in range(len(smap)):
+		for j in range(len(smap[i])):
+			if (i, j) == splayer:
+				string = string + PLAYER
+			elif (i, j) in sblocks:
+				string = string + BLOCK
+			else:
+				string = string + smap[i][j]
+		string = string + '\n'
+	return string.rstrip()
 
 
 def stringA(action):
@@ -109,51 +114,35 @@ def stringD(direction):
 		return "WEST"
 
 def strAction(action):
-	return '(' + stringA(action[0]) + ',' + stringD(action[1]) + ')'
+	return '(' + stringA(action[ATYPE]) + ',' + stringD(action[ADIRECTION]) + ')'
 
 def strSuccessor(successor):
-	return 'ACTIONS (' + str(len(successor[2])) + '): ' + ''.join(map(lambda x: strAction(x), successor[2])) + ' STATE: \n' + strState(successor[0])
+	return 'ACTIONS (' + str(len(successor[SACTIONS])) + '): ' + ''.join(map(lambda x: strAction(x), successor[SACTIONS])) + ' STATE: \n' + strState(successor[SMAP], successor[SPLAYER], successor[SBLOCKS])
 
-def goalsMet(state, goals):
-	for goal in goals:
-		if state[goal[0]][goal[1]] != '*':
+def goalsMet(blocks, goals):
+	for block in blocks:
+		if not block in goals:
 			return False
 	return True
 
-class Successor:
-	def __init__(self, successor):
-		self.successor = successor
-
-	def __eq__(self, other):
-		return self.successor[0] == other.successor[0]
-
-	def __ne__(self, other):
-		return not self.__eq__(other)
-	
-	def __hash__(self):
-		return hash(self.successor[0])
-	
-	def __str__(self):
-		return strSuccessor(self.successor)
-
 iterations = 0
 
-def bdfs(initial_state, goals, player, blocks, ds, addDs):
+def bdfs(smap, goals, player, blocks, ds, addDs):
 	global iterations
-	start = (initial_state, player, [])
+	start = (smap, player, blocks, [])
 	addDs(start)
 	visited = set([])
 	vadd = visited.add
 	while ds:
 		state = ds.pop()
-		visit = Successor(state)
+		visit = (state[SPLAYER], tuple(sorted(state[SBLOCKS])))
 		if visit in visited:
 			continue
 		iterations = iterations + 1
 		vadd(visit)
-		if goalsMet(state[0], goals):
+		if goalsMet(state[SBLOCKS], goals):
 			return state
-		succs = successors(*state)
+		succs = successors(DIRECTIONS, *state)
 		for successor in succs:
 			addDs(successor)
 
@@ -177,7 +166,7 @@ def absManDist(d1, d2):
 	return x + y
 
 def minGoalHeuristic(state, goals):
-	player = state[1]
+	player = state[SPLAYER]
 	h = 10000
 	for goal in goals:
 		th = absManDist(player, goal)
@@ -187,7 +176,7 @@ def minGoalHeuristic(state, goals):
 
 def astar(initial_state, goals, player, blocks):
 	global iterations
-	start = (initial_state, player, [])
+	start = (initial_state, player, blocks, [])
 	ds = []
 	dsadd = heapq.heappush
 	dspop = heapq.heappop
@@ -196,17 +185,17 @@ def astar(initial_state, goals, player, blocks):
 	vadd = visited.add
 	while ds:
 		_, state = dspop(ds)
-		visit = Successor(state)
+		visit = (state[SPLAYER], tuple(sorted(SBLOCKS)))
 		if visit in visited:
 			continue
 		iterations = iterations + 1
 		vadd(visit)
-		if goalsMet(state[0], goals):
+		if goalsMet(state[SBLOCKS], goals):
 			return state
-		succs = successors(*state)
-		g = len(state[2]) + 1
+		succs = successors(DIRECTIONS, *state)
+		g = len(state[SACTIONS]) + 1
 		for successor in succs:
-			player = successor[1]
+			player = successor[SPLAYER]
 			h = minGoalHeuristic(state, goals)
 			f = g + h
 			dsadd(ds, (f, successor))
@@ -236,12 +225,13 @@ else:
 	
 	print('time(s):' + str(time() - startTime))
 	print('states:' + str(iterations))
-	if args.frames:
-		state = problem
-		for action in solution[2]:
-			state, player, _ = createSuccessor(state, player, [], action)
+	if solution == None:
+		print("No solution")
+	elif args.frames:
+		for action in solution[SACTIONS]:
+			_, player, blocks, _ = successor([action[ADIRECTION]], problem, player, blocks, [])[0]
 			print(strAction(action) + ':')
-			print(strState(state))
+			print(strState(problem, player, blocks))
 	else:
 		print(strSuccessor(solution))
 
