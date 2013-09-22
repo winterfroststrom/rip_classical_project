@@ -176,20 +176,21 @@ def minGoalHeuristic(state, goals):
 def findDeadSpots(smap, goals):
 	dead = []
 	append = dead.append
-	for i in range(len(smap) - 2, 1):
-		for j in range(len(smap) - 2, 1):
-			if smap[i][j] in goals: 
+	for i in range(1, len(smap) - 1):
+		for j in range(1, len(smap[i]) - 1):
+			if (i, j) in goals or smap[i][j] != CLEAR: 
 				continue
-			walls = 0
-			if smap[i + 1][j] != CLEAR and smap[i][j + 1] in goals:
-				walls = walls + 1
-			if smap[i - 1][j] != CLEAR and smap[i][j + 1] in goals:
-				walls = walls + 1
-			if smap[i][j + 1] != CLEAR and smap[i - 1][j] in goals:
-				walls = walls + 1
-			if smap[i][j - 1] != CLEAR and smap[i - 1][j] in goals:
-				walls = walls + 1
-			if walls > 1:
+			x = False
+			y = False
+			if smap[i + 1][j] != CLEAR:
+				x = True
+			if smap[i - 1][j] != CLEAR:
+				x = True
+			if smap[i][j + 1] != CLEAR:
+				y = True
+			if smap[i][j - 1] != CLEAR:
+				y = True
+			if x and y:
 				append((i, j))
 	return tuple(dead)
 
@@ -243,7 +244,7 @@ def astar(smap, goals, player, blocks):
 			dsadd(ds, (f, successor))
 
 with open(args.problem, 'r') as problem_file:
-	problem = list(map(lambda x: list(x),problem_file.read().split('\n')))
+	problem = list(map(lambda x: list(x),problem_file.read().split('\n')))[:-1]
 
 problem, goals, player, blocks = parseProblem(problem)
 if args.perf:
