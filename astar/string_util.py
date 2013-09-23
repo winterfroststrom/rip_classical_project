@@ -34,5 +34,5 @@ def strAction(action):
 	return '(' + stringA(action[ATYPE]) + ',' + stringD(action[ADIRECTION]) + ')'
 
 def strNode(smap, successor):
-	return 'ACTIONS (' + str(len(successor[SACTIONS])) + '): ' + ''.join(map(lambda x: strAction(x), successor[SACTIONS])) + ' STATE: \n' + strState(smap, successor[SPLAYER], successor[SBLOCKS])
+	return 'ACTIONS (' + str(len(successor[SACTIONS])) + '): ' + ''.join(map(lambda x: strAction(x), successor[SACTIONS])) + ' \nSTATE: \n' + strState(smap, successor[SPLAYER], successor[SBLOCKS])
 

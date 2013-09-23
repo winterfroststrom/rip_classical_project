@@ -90,12 +90,14 @@ def astar(smap, goals, player, blocks):
 		succs = successors(DIRECTIONS, smap, *state)
 		g = len(state[SACTIONS]) + 1
 		for successor in succs:
-			#h = 0
-			#h = h + blockDistanceHeuristic(successor[SPLAYER], successor[SBLOCKS])
-			h = deadSpotHeuristic(successor[SBLOCKS], dead)
+			if deadSpotHeuristic(successor[SBLOCKS], dead):	
+				continue
+			h = 0
+			h = blockDistanceHeuristic(successor[SPLAYER], successor[SBLOCKS])
+			#h = deadSpotHeuristic(successor[SBLOCKS], dead)
 			#h = h + mstHeuristic(state[SPLAYER], state[SBLOCKS], (()))
 			#h = minGoalHeuristic(state, goals)
-			#h = h + nearestPairHeuristic(successor[SBLOCKS], goals)
+			#h = nearestPairHeuristic(successor[SBLOCKS], goals)
 			#h = deadAndNearestHeuristic(successor[SBLOCKS], dead, goals)
 			f = g + h
 			dsadd(ds, (f, successor))
@@ -133,7 +135,9 @@ def bastar(smap, goals, player, blocks):
 		a_succs = successors(DIRECTIONS, smap, *a_state)
 		g = len(a_state[SACTIONS]) + 1
 		for successor in a_succs:
-			h = deadSpotHeuristic(successor[SBLOCKS], dead)
+			if deadSpotHeuristic(successor[SBLOCKS], dead):
+				continue
+			h = blockDistanceHeuristic(successor[SPLAYER], successor[SBLOCKS])
 			f = g + h
 			a_dsadd(a_ds, (f, successor))
 		b_state = b_dspop()
