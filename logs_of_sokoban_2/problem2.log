@@ -1,0 +1,74 @@
+
+ff: parsing domain file
+domain 'SOKOBAN-DOMAIN' defined
+ ... done.
+ff: parsing problem file
+problem 'SOKOBAN-P2' defined
+ ... done.
+
+
+no metric specified. plan length assumed.
+
+checking for cyclic := effects --- OK.
+
+ff: search configuration is EHC, if that fails then  best-first on 1*g(s) + 5*h(s) where
+    metric is  plan length
+
+Cueing down from goal distance:   13 into depth [1]
+                                  12            [1]
+                                  11            [1][2][3][4][5][6][7][8][9][10][11][12][13][14][15][16][17][18][19][20][21] --- pruning stopped --- [1][2][3][4][5][6][7][8][9][10][11]
+                                  10            [1][2][3][4][5] --- pruning stopped --- [1][2][3][4][5][6][7][8]
+                                   9            [1][2]
+                                   8            [1]
+                                   7            [1][2]
+                                   5            [1][2]
+                                   4            [1]
+                                   3            [1]
+                                   2            [1]
+                                   1            [1]
+                                   0            
+
+ff: found legal plan as follows
+
+step    0: MOVE-PLAYER B21 B11
+        1: MOVE-PLAYER B11 B12
+        2: MOVE-PLAYER B12 B13
+        3: PUSH-BOX B13 B23 B33
+        4: MOVE-PLAYER B23 B13
+        5: MOVE-PLAYER B13 B12
+        6: MOVE-PLAYER B12 B11
+        7: MOVE-PLAYER B11 B21
+        8: PUSH-BOX B21 B22 B23
+        9: MOVE-PLAYER B22 B32
+       10: PUSH-BOX B32 B33 B34
+       11: MOVE-PLAYER B33 B32
+       12: MOVE-PLAYER B32 B22
+       13: MOVE-PLAYER B22 B12
+       14: MOVE-PLAYER B12 B13
+       15: PUSH-BOX B13 B23 B33
+       16: MOVE-PLAYER B23 B24
+       17: PUSH-BOX B24 B34 B44
+       18: PUSH-BOX B34 B44 B54
+       19: PUSH-BOX B44 B54 B64
+       20: MOVE-PLAYER B54 B44
+       21: MOVE-PLAYER B44 B43
+       22: PUSH-BOX B43 B33 B23
+       23: MOVE-PLAYER B33 B34
+       24: MOVE-PLAYER B34 B24
+       25: PUSH-BOX B24 B23 B22
+       26: MOVE-PLAYER B23 B33
+       27: MOVE-PLAYER B33 B32
+       28: PUSH-BOX B32 B22 B12
+       29: MOVE-PLAYER B22 B23
+       30: MOVE-PLAYER B23 B13
+       31: PUSH-BOX B13 B12 B11
+     
+
+time spent:    0.00 seconds instantiating 56 easy, 0 hard action templates
+               0.00 seconds reachability analysis, yielding 42 facts and 56 actions
+               0.00 seconds creating final representation with 42 relevant facts, 0 relevant fluents
+               0.00 seconds computing LNF
+               0.00 seconds building connectivity graph
+               0.00 seconds searching, evaluating 204 states, to a max depth of 21
+               0.00 seconds total time
+
