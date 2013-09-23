@@ -38,11 +38,18 @@ def dfs(initial_state, goals, player, blocks):
 	ds = []
 	return dbfs(initial_state, goals, player, list(blocks), ds, ds.append)
 
-def rbfs(smap, blocks, player, goals):
+def rbfs(initial_state, goals, player, blocks):
+	ds = deque([])
+	append = ds.appendleft
+	return rdbfs(initial_state, goals, player, list(blocks), ds, append)
+
+def rdfs(initial_state, goals, player, blocks):
+	ds = []
+	return rdbfs(initial_state, goals, player, list(blocks), ds, ds.append)
+
+def rdbfs(smap, blocks, player, goals, ds, dsadd):
 	global iterations
 	start = (player, list(blocks), [])
-	ds = deque([])
-	dsadd = ds.appendleft
 	dspop = ds.pop
 	dsadd(start)
 	visited = set([])

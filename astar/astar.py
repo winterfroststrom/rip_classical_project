@@ -8,7 +8,7 @@ import algorithms
 
 parser = argparse.ArgumentParser(description='Solve Sokoban with A*.')
 parser.add_argument('problem', help='problem file for sokoban')
-parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs', 'rbfs', 'bastar', 'bbfs', 'bdfs'], default='astar')
+parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs', 'rbfs', 'bastar', 'bbfs', 'bdfs', 'rdfs'], default='astar')
 parser.add_argument('-frames', help='show frames', action="store_true")
 parser.add_argument('-perf', help='show performance data', action='store_true')
 args = parser.parse_args()
@@ -62,12 +62,14 @@ else:
 		solution = dfs(problem, goals, player, blocks)
 	elif args.algorithm == 'rbfs':
 		solution = rbfs(problem, goals, player, blocks)
-	elif args.algorithm == 'bastar':
-		solution = bastar(problem, goals, player, blocks)
+	elif args.algorithm =='rdfs':
+		solution = rdfs(problem, goals, player, blocks)
 	elif args.algorithm == 'bbfs':
 		solution = bbfs(problem, goals, player, blocks)
 	elif args.algorithm == 'bdfs':
 		solution = bdfs(problem, goals, player, blocks)
+	elif args.algorithm == 'bastar':
+		solution = bastar(problem, goals, player, blocks)
 	else:
 		solution = astar(problem, goals, player, blocks)
 	
