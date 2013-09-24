@@ -69,18 +69,27 @@ def rdbfs(smap, blocks, player, goals, ds, dsadd):
 		for successor in succs:
 			dsadd(successor)
 
+H0_MEMO = {}
+
 def h0Heuristic(smap, goals, player, blocks):
 	global iterations
-	h = []
+	h = 0
 	it = iterations
 	for block in blocks:
-		sol = bfs(smap, goals, player, [block])
-		if sol != None:
-			h.append(len(sol[SACTIONS]))
+		key = (player, block)
+		if key in H0_MEMO:
+			h = h + H0_MEMO[key]
+		else:
+			sol = bfs(smap, goals, player, [block])
+			if sol == None:
+				H0_MEMO[key] = 10000
+			else:
+				H0_MEMO[key] = len(sol[SACTIONS])
+			h = h + H0_MEMO[key]
 	iterations = it
-	if len(h) == 0:
-		return 10000
-	return sum(h)
+	return h
+
+H1_MEMO = {}
 
 def h1Heuristic(smap, goals, player, blocks):
 	global iterations
@@ -90,32 +99,42 @@ def h1Heuristic(smap, goals, player, blocks):
 		return 0
 	for block in blocks:
 		if not block in goals:
-			sol = bfs(smap, goals, player, [block])
-			if sol != None:
-				h = max(len(sol[SACTIONS]), h)
+			key = (block, player)
+			if not key in H1_MEMO:
+				sol = bfs(smap, goals, player, [block])
+				if sol == None:
+					H1_MEMO[key] = -1
+				else:
+					H1_MEMO[key] = len(sol[SACTIONS])
+			h = max(h, H1_MEMO[key])
 	iterations = it
 	if h == -1:
 		return 10000
 	return h
 
+H2_MEMO = {}
+
 def h2Heuristic(smap, goals, player, blocks):
 	global iterations
 	it = iterations
-	h = -1
+	h = 0
 	if goalsMet(blocks, goals):
 		return 0
 	for block1 in blocks:
 		for block2 in blocks:
 			if block1 != block2:
-				sol = bfs(smap, goals, player, [block1, block2])
-				if sol != None:
-					h = max(len(sol[SACTIONS]), h)
+				key = (player, tuple(sorted([block1, block2])))
+				if key in H2_MEMO:
+					h = max(H2_MEMO[key], h)
+				else:
+					sol = bfs(smap, goals, player, [block1, block2])
+					if sol == None:
+						H2_MEMO[key] = 10000
+					else:
+						H2_MEMO[key] = len(sol[SACTIONS])
+				h = max(H2_MEMO[key], h)
 	iterations = it
-	if h == -1:
-		return 10000
 	return h
-
-
 
 def astar(smap, goals, player, blocks):
 	global iterations
@@ -144,8 +163,8 @@ def astar(smap, goals, player, blocks):
 			#h = 0 
 			#h = h0Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
 			#h = h1Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
-			#h = h2Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
-			h = blockDistanceHeuristic(successor[SPLAYER], successor[SBLOCKS])
+			h = h2Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
+			#h = blockDistanceHeuristic(successor[SPLAYER], successor[SBLOCKS])
 			#h = deadSpotHeuristic(successor[SBLOCKS], dead)
 			#h = h + mstHeuristic(state[SPLAYER], state[SBLOCKS], (()))
 			#h = minGoalHeuristic(state, goals)
