@@ -11,6 +11,7 @@ parser.add_argument('problem', help='problem file for sokoban')
 parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs', 'rbfs', 'bastar', 'bbfs', 'bdfs', 'rdfs'], default='astar')
 parser.add_argument('-frames', help='show frames', action="store_true")
 parser.add_argument('-perf', help='show performance data', action='store_true')
+parser.add_argument('-min', help='show only time, states, and number of steps', action='store_true')
 args = parser.parse_args()
 
 def list2tuple(l):
@@ -72,16 +73,24 @@ else:
 		solution = bastar(problem, goals, player, blocks)
 	else:
 		solution = astar(problem, goals, player, blocks)
-	
-	print('time(s):' + str(time() - startTime))
-	print('states:' + str(algorithms.iterations))
-	if solution == None:
-		print("No solution")
-	elif args.frames:
-		for action in solution[SACTIONS]:
-			player, blocks, _ = successors([action[ADIRECTION]], problem, player, blocks, [])[0]
-			print(strAction(action) + ':')
-			print(strState(problem, player, blocks))
+	time_info ='time(s):' + str(time() - startTime)
+	state_info ='states:' + str(algorithms.iterations) 
+	step_info = "steps:" + str(len(solution[SACTIONS])) 
+	if args.min:
+		if solution == None:
+			print("No solution")
+		else:
+			print(args.algorithm + ':' + args.problem + ', ' + time_info + ', ' + state_info + ', ' + step_info)
 	else:
-		print(strNode(problem, solution))
+		print(time_info)
+		print(state_info)
+		if solution == None:
+			print("No solution")
+		elif args.frames:
+			for action in solution[SACTIONS]:
+				player, blocks, _ = successors([action[ADIRECTION]], problem, player, blocks, [])[0]
+				print(strAction(action) + ':')
+				print(strState(problem, player, blocks))
+		else:
+			print(strNode(problem, solution))
 
