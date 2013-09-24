@@ -3,6 +3,7 @@ from collections import deque
 from variables import *
 from heuristics import *
 from algorithms_util import *
+from random import choice
 
 iterations = 0
 
@@ -68,6 +69,54 @@ def rdbfs(smap, blocks, player, goals, ds, dsadd):
 		for successor in succs:
 			dsadd(successor)
 
+def h0Heuristic(smap, goals, player, blocks):
+	global iterations
+	h = []
+	it = iterations
+	for block in blocks:
+		sol = bfs(smap, goals, player, [block])
+		if sol != None:
+			h.append(len(sol[SACTIONS]))
+	iterations = it
+	if len(h) == 0:
+		return 10000
+	return sum(h)
+
+def h1Heuristic(smap, goals, player, blocks):
+	global iterations
+	it = iterations
+	h = -1
+	if goalsMet(blocks, goals):
+		return 0
+	for block in blocks:
+		if not block in goals:
+			sol = bfs(smap, goals, player, [block])
+			if sol != None:
+				h = max(len(sol[SACTIONS]), h)
+	iterations = it
+	if h == -1:
+		return 10000
+	return h
+
+def h2Heuristic(smap, goals, player, blocks):
+	global iterations
+	it = iterations
+	h = -1
+	if goalsMet(blocks, goals):
+		return 0
+	for block1 in blocks:
+		for block2 in blocks:
+			if block1 != block2:
+				sol = bfs(smap, goals, player, [block1, block2])
+				if sol != None:
+					h = max(len(sol[SACTIONS]), h)
+	iterations = it
+	if h == -1:
+		return 10000
+	return h
+
+
+
 def astar(smap, goals, player, blocks):
 	global iterations
 	start = (player, list(blocks), [])
@@ -92,7 +141,10 @@ def astar(smap, goals, player, blocks):
 		for successor in succs:
 			if deadSpotHeuristic(successor[SBLOCKS], dead):	
 				continue
-			h = 0
+			#h = 0 
+			#h = h0Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
+			#h = h1Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
+			#h = h2Heuristic(smap, goals, successor[SPLAYER], successor[SBLOCKS])
 			h = blockDistanceHeuristic(successor[SPLAYER], successor[SBLOCKS])
 			#h = deadSpotHeuristic(successor[SBLOCKS], dead)
 			#h = h + mstHeuristic(state[SPLAYER], state[SBLOCKS], (()))
