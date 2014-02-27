@@ -8,7 +8,7 @@ import algorithms
 
 parser = argparse.ArgumentParser(description='Solve Sokoban with A*.')
 parser.add_argument('problem', help='problem file for sokoban')
-parser.add_argument('-algorithm', help='algorithm to use', choices=['astar', 'bfs', 'dfs', 'rbfs', 'bastar', 'bbfs', 'bdfs', 'rdfs'], default='astar')
+parser.add_argument('-algorithm', help='algorithm to use (astar if unspecified), b- means bidirectional, r- means reversed', choices=['astar', 'bfs', 'dfs', 'rbfs', 'bastar', 'bbfs', 'bdfs', 'rdfs'], default='astar')
 parser.add_argument('-frames', help='show frames', action="store_true")
 parser.add_argument('-perf', help='show performance data', action='store_true')
 parser.add_argument('-min', help='show only time, states, and number of steps', action='store_true')
